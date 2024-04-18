@@ -14,3 +14,5 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+//StatusBar: Barra de estado.
