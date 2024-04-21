@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import { Card } from '@rneui/themed';
+import { EXCURSIONES } from '../Comun/excursiones';
 
 function RenderExcursion(props) {
+
     const excursion = props.excursion;
 
     if (excursion != null) {
@@ -17,7 +19,7 @@ function RenderExcursion(props) {
                     {excursion.descripcion}
                 </Text>
             </Card>
-        )
+        );
     }
     else {
         return (<View></View>);
@@ -29,11 +31,20 @@ function RenderExcursion(props) {
 
 //Card.Divider Add divider to the card which acts as a separator between elements. This, Receives all Divider props.
 
-function DetalleExcursion(props) {
-    return (
-        <RenderExcursion excursion={props.excursion} />
-    );
+class DetalleExcursion extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            excursiones: EXCURSIONES
+        };
+    }
+  
+    render(){
+        const {excursionId} = this.props.route.params;
+        return(<RenderExcursion excursion={this.state.excursiones[+excursionId]} />);
+    }
 }
 
 export default DetalleExcursion;
+
 

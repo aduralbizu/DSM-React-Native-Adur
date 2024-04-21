@@ -1,45 +1,45 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { ListItem, Avatar } from '@rneui/themed';
 import { SafeAreaView, FlatList } from 'react-native';
+import { EXCURSIONES } from '../Comun/excursiones';
 
-function Calendario(props) {
+class Calendario extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            excursiones: EXCURSIONES
+        };
+    }
 
-    const renderCalendarioItem = ({ item, index }) => { //Index es la posición del elemento en la lista.
+    render() { //  render() es un método fundamental en los componentes de React. Este método es obligatorio y se utiliza para definir la interfaz de usuario (UI) que el componente debe representar
+
+        const { navigate } = this.props.navigation; //Para navegar a otra página. this.props.navigation: Esta prop proporciona acceso a la navegación en React Navigation desde el componente de pantalla actual. Contiene métodos como navigate, goBack, push, pop, entre otros, así como propiedades como state y setParams.
+
+        const renderCalendarioItem = ({ item, index }) => {
+            return (
+                <ListItem
+                    key={index}
+                    onPress={() => navigate('DetalleExcursion', { excursionId: item.id })} // Cuando navegas de una pantalla a otra en React Navigation, puedes pasar parámetros a la nueva pantalla. Estos parámetros se pueden acceder desde la pantalla receptora a través de this.props.route.params.
+                    bottomDivider>
+                    <Avatar source={require('./imagenes/40Años.png')} />
+                    <ListItem.Content>
+                        <ListItem.Title>{item.nombre}</ListItem.Title>
+                        <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
+                    </ListItem.Content>
+                </ListItem>
+            );
+        };
+
         return (
-            <ListItem key={index} onPress={() => props.onPress(item.id)} bottomDivider>
-
-                <Avatar source={require('./imagenes/40Años.png')} />
-                <ListItem.Content>
-                    <ListItem.Title>{item.nombre}</ListItem.Title>
-                    <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
-                </ListItem.Content>
-            </ListItem>
+            <SafeAreaView>
+                <FlatList
+                    data={this.state.excursiones}
+                    renderItem={renderCalendarioItem}
+                    keyExtractor={item => item.id.toString()}
+                />
+            </SafeAreaView>
         );
-    };
-
-    return (
-        <SafeAreaView>
-            <FlatList
-                data={props.excursiones}
-                renderItem={renderCalendarioItem}
-                keyExtractor={item => item.id.toString()}
-            />
-        </SafeAreaView>
-
-    );
-
+    }
 }
-
-// ListItem:  Este es un componente de React Native llamado ListItem, que parece mostrar un elemento individual en la lista
-{/* <SafeAreaView> es un componente proporcionado por React Native que se utiliza para garantizar que el contenido de una aplicación móvil se muestre correctamente en dispositivos con pantallas que tienen recortes, como la muesca en la parte superior del iPhone (iOS) o barras de notificaciones en dispositivos Android. */ }
-
-//BottomDivider: bottomDivider es una prop específica del componente ListItem en React Native. Cuando se establece en true, agrega un divisor en la parte inferior del elemento ListItem.
-
-//flatlist: A performant interface for rendering basic, flat lists, s
-//Data: An array (or array-like list) of items to render.
-//Renderitem: Takes an item from data and renders it into the list. Una función que renderiza cada elemento de la lista.
-// item (Object): The item from data being rendered.
-// index (number): The index corresponding to this item in the data array.
-// keyExtractor Used to extract a unique key for a given item at the specified index. En este caso, index es la clave generada por la función keyExtractor. Se pasa a través de la función de renderizado como parte del objeto que recibe, el cual contiene item y index.
 
 export default Calendario;
