@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import { Card } from '@rneui/themed';
 import { EXCURSIONES } from '../Comun/excursiones';
+import { StyleSheet } from 'react-native';
 
 function RenderExcursion(props) {
 
@@ -10,10 +11,10 @@ function RenderExcursion(props) {
     if (excursion != null) {
         return (
             <Card>
-                <Card.Title>
-                    {excursion.nombre}
-                </Card.Title>
                 <Card.Divider />
+                <View style={styles.textoContainer}>
+                    <Text style={styles.titulo}>{excursion.nombre}</Text>
+                </View>
                 <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
                 <Text style={{ margin: 20 }}>
                     {excursion.descripcion}
@@ -44,6 +45,24 @@ class DetalleExcursion extends Component {
         return(<RenderExcursion excursion={this.state.excursiones[+excursionId]} />);
     }
 }
+
+const styles = StyleSheet.create({
+    titulo: {
+        color: 'chocolate',
+        fontSize: 30,
+        fontWeight: 'bold',
+        padding: 5,
+        zIndex: 1, // Asegura que el texto esté sobre la imagen
+    },
+    textoContainer: {
+        position: 'absolute',
+        top: 60,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        alignItems: 'center', // Centra horizontalmente
+    }
+});
 
 export default DetalleExcursion;
 
