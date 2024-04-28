@@ -14,6 +14,7 @@ class Calendario extends Component {
     render() { //  render() es un método fundamental en los componentes de React. Este método es obligatorio y se utiliza para definir la interfaz de usuario (UI) que el componente debe representar
 
         const { navigate } = this.props.navigation; //Para navegar a otra página. this.props.navigation: Esta prop proporciona acceso a la navegación en React Navigation desde el componente de pantalla actual. Contiene métodos como navigate, goBack, push, pop, entre otros, así como propiedades como state y setParams.
+        // La prop navigation que se está utilizando en const { navigate } = this.props.navigation; es una prop especial proporcionada por React Navigation. Esta prop es pasada automáticamente a los componentes de pantalla (Screens) por el componente de navegación principal (StackNavigator, TabNavigator, etc.) y proporciona acceso a métodos y propiedades relacionadas con la navegación.
 
         const renderCalendarioItem = ({ item, index }) => {
             return (
@@ -38,7 +39,8 @@ class Calendario extends Component {
                     keyExtractor={item => item.id.toString()}
                 />
             </SafeAreaView>
-        );
+        ); //En React Native, FlatList es un componente utilizado para renderizar listas de datos en una aplicación móvil de manera eficiente.
+   // renderItem: Takes an item from data and renders it into the list.
     }
 }
 

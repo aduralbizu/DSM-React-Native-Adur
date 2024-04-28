@@ -5,9 +5,13 @@ import DetalleExcursion from './DetalleExcursionComponent';
 import { Platform, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import Home from './HomeComponent';
+import ContactoComponent from './ContactoComponent';
+import QuienesSomos from './QuienesSomosComponent';
 
 const Stack = createNativeStackNavigator(); //Se crea un Stack Navigator utilizando createNativeStackNavigator de React Navigation. Este Stack Navigator se utilizará para gestionar la navegación entre las diferentes pantallas de la aplicación.
+const Drawer = createDrawerNavigator();
 
 function CalendarioNavegador() {
     return (//stackNavigator, que define un conjunto de pantallas apiladas una encima de la otra. Este StackNavigator gestionará la navegación entre las pantallas definidas dentro de él.
@@ -19,7 +23,7 @@ function CalendarioNavegador() {
                 headerStyle: { backgroundColor: '#015afc' }, // estilo del encabezado
                 headerTitleStyle: { color: '#fff' }, //Estilo del texto del título del encabezado
             }}
-        > 
+        >
             <Stack.Screen
                 name="Calendar"
                 component={Calendario}
@@ -38,14 +42,104 @@ function CalendarioNavegador() {
     );
 }
 
+function HomeNavegador() {
+    return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
+        <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+                headerMode: 'screen',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#015afc' },
+                headerTitleStyle: { color: '#fff' }, //En style puedo poner el estilo que me venga en gana
+            }}
+        >
+            <Stack.Screen
+                name="Home"
+                component={Home}
+                options={{
+                    title: 'Campo Base',
+                }}
+            />
+        </Stack.Navigator>
+    );
+}
+
+function ContactoNavegador() {
+    return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
+        <Stack.Navigator
+            initialRouteName="ContactoHijo"
+            screenOptions={{
+                headerMode: 'screen',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#015afc' },
+                headerTitleStyle: { color: '#fff' },
+            }}
+        >
+            <Stack.Screen
+                name="ContactoHijo"
+                component={ContactoComponent}
+                options={{
+                    title: 'Contacto',
+                }}
+            />
+        </Stack.Navigator>
+    );
+}
+
+function QuienesSomosNavegador() {
+    return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
+        <Stack.Navigator
+            initialRouteName="Quiénes somos hijo"
+            screenOptions={{
+                headerMode: 'screen',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#015afc' },
+                headerTitleStyle: { color: '#fff' },
+            }}
+        >
+            <Stack.Screen
+                name="Quiénes somos hijo"
+                component={QuienesSomos}
+                options={{
+                    title: 'Quiénes somos',
+                }}
+            />
+        </Stack.Navigator>
+    );
+}
+
+function DrawerNavegador() {
+    return ( // <Drawer.Navigator> actúa como un contenedor para las pantallas y rutas que deseas que estén disponibles en el menú deslizante
+        <Drawer.Navigator
+            initialRouteName=" Campo base"
+            screenOptions={{
+                headerShown: false,
+                drawerStyle: {
+                    backgroundColor: '#c2d3da',
+                },
+            }}
+        >
+            <Drawer.Screen name="Campo base" component={HomeNavegador} />
+            <Drawer.Screen name="Quiénes somos" component={QuienesSomosNavegador} />
+            <Drawer.Screen name="Calendario" component={CalendarioNavegador} />
+            <Drawer.Screen name="Contacto" component={ContactoNavegador} /> 
+        </Drawer.Navigator>
+    );
+}
+
+
 class Campobase extends Component {
     render() {
         return (
-            <NavigationContainer>
-                <View style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 0 : Constants.statusBarHeight }}>
-                    <CalendarioNavegador />
-                </View>
-            </NavigationContainer>
+            <>
+                <NavigationContainer>
+                    <View style={{
+                        flex: 1, paddingTop: Platform.OS === 'ios' ? 0 : 0/*Constants.statusBarHeight*/
+                    }}>
+                        <DrawerNavegador />
+                    </View>
+                </NavigationContainer>
+            </>
         );
     }
 }
@@ -53,8 +147,9 @@ class Campobase extends Component {
 export default Campobase;
 
 // createStackNavigator es un método proporcionado por React Navigation que te permite crear un stack navigator en tu aplicación React Native. Un stack navigator gestiona la navegación entre diferentes pantallas apilándolas una encima de la otra.
+// In React Navigation, <NavigationContainer> is a component used as the root of your navigation structure. It's typically used to wrap the entire app's navigation components.
 // In a typical React Native app, the NavigationContainer should be only used once in your app at the root. You shouldn't nest multiple NavigationContainers unless you have a specific use case for them.
-// En el contexto de React Navigation, las "Screens" (pantallas) son componentes de React que representan las diferentes pantallas o vistas de una aplicación. 
+// En el contexto de React Navigation, las "Screens" (pantallas) son componentes de React que representan las diferentes pantallas o vistas de una aplicación.
 
 // class CampoBase extends Component { // Esto significa que Campobase es un componente de React que hereda todas las funcionalidades de un componente de clase de React
 //     constructor(props) {
