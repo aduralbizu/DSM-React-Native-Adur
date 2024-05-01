@@ -11,6 +11,7 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '
 import Home from './HomeComponent';
 import ContactoComponent from './ContactoComponent';
 import QuienesSomos from './QuienesSomosComponent';
+import { colorGaztaroaClaro, colorGaztaroaOscuro } from '../Comun/comun';
 
 
 const Stack = createNativeStackNavigator(); //Se crea un Stack Navigator utilizando createNativeStackNavigator de React Navigation. Este Stack Navigator se utilizará para gestionar la navegación entre las diferentes pantallas de la aplicación.
@@ -23,7 +24,7 @@ function CalendarioNavegador({navigation}) {
             headerMode="float" //headerMode especifica el modo en que se muestran los encabezados de las pantallas dentro del StackNavigator. En este caso, se establece en "float", lo que significa que los encabezados flotarán sobre el contenido de la pantalla. cuando hablamos de "encabezados", nos referimos a las barras superiores que contienen elementos como el título de la pantalla y botones de navegación (como el botón "Atrás"). 
             screenOptions={{
                 headerTintColor: '#fff', //color del texto del encabezado 
-                headerStyle: { backgroundColor: '#015afc' }, // estilo del encabezado
+                headerStyle: { backgroundColor: colorGaztaroaOscuro }, // estilo del encabezado
                 headerTitleStyle: { color: '#fff' }, //Estilo del texto del título del encabezado
             }}
         >
@@ -53,7 +54,7 @@ function HomeNavegador({navigation}) {
             screenOptions={{
                 headerMode: 'screen',
                 headerTintColor: '#fff',
-                headerStyle: { backgroundColor: '#015afc' },
+                headerStyle: { backgroundColor: colorGaztaroaOscuro },
                 headerTitleStyle: { color: '#fff' }, //En style puedo poner el estilo que me venga en gana
             }}
         >
@@ -76,7 +77,7 @@ function ContactoNavegador({navigation}) {
             screenOptions={{
                 headerMode: 'screen',
                 headerTintColor: '#fff',
-                headerStyle: { backgroundColor: '#015afc' },
+                headerStyle: { backgroundColor: colorGaztaroaOscuro },
                 headerTitleStyle: { color: '#fff' },
             }}
         >
@@ -99,7 +100,7 @@ function QuienesSomosNavegador({ navigation }) {
             screenOptions={{
                 headerMode: 'screen',
                 headerTintColor: '#fff',
-                headerStyle: { backgroundColor: '#015afc' },
+                headerStyle: { backgroundColor: colorGaztaroaOscuro },
                 headerTitleStyle: { color: '#fff' } 
             }}
         >
@@ -156,7 +157,7 @@ function DrawerNavegador() {
             screenOptions={{
                 headerShown: false, //ningún encabezado en las pantallas
                 drawerStyle: {
-                    backgroundColor: '#c2d3da', // Color que se aplicará como el color de fondo del cajón lateral
+                    backgroundColor: colorGaztaroaClaro, // Color que se aplicará como el color de fondo del cajón lateral. Viene de nuestras constantes globales
                 },
                 // El bloque screenOptions que proporcionas se utiliza para definir las opciones de estilo y comportamiento que se aplicarán a todas las pantallas dentro del Drawer.Navigator
 
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
         flex: 1, //Para asegurarse de que el contenido del componente ocupe todo el espacio disponible en la pantalla
     },
     drawerHeader: {
-        backgroundColor: '#015afc',
+        backgroundColor: colorGaztaroaOscuro,
         height: 100,
         alignItems: 'center',
         justifyContent: 'center',

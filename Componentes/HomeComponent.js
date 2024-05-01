@@ -5,6 +5,7 @@ import { EXCURSIONES } from '../Comun/excursiones';
 import { CABECERAS } from '../Comun/cabeceras';
 import { ACTIVIDADES } from '../Comun/actividades';
 import { StyleSheet } from 'react-native';
+import { baseUrl } from '../Comun/comun';
 
 function RenderItem(props) {
 
@@ -17,7 +18,7 @@ function RenderItem(props) {
                 <View style={styles.textoContainer}>
                     <Text style={styles.titulo}>{item.nombre}</Text>
                 </View>
-                <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
+                <Card.Image source={{uri: baseUrl + item.imagen}}/>
                 <Text style={{ margin: 20 }}>
                     {item.descripcion}
                 </Text>

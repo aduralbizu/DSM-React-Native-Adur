@@ -5,6 +5,7 @@ import { Card, Icon } from '@rneui/themed';
 import { EXCURSIONES } from '../Comun/excursiones';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
+import { baseUrl } from '../Comun/comun';
 
 
 function RenderExcursion(props) {
@@ -18,7 +19,7 @@ function RenderExcursion(props) {
                 <View style={styles.textoContainer}>
                     <Text style={styles.titulo}>{excursion.nombre}</Text>
                 </View>
-                <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
+                <Card.Image source={{uri: baseUrl + excursion.imagen}} onPress={()=> console.log(baseUrl + excursion.imagen)}/>
                 <Text style={{ margin: 20 }}>
                     {excursion.descripcion}
                 </Text>
@@ -30,6 +31,7 @@ function RenderExcursion(props) {
                     color='#f50' // Este prop establece el color del icono en color naranja (#f50)
                     onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} //Si al pulsar props.favorita es cierto, hacemos console.log() avisando de que ya es favorito. En caso contrario, ejecutamos funcion props.Onpress pasada como propiedad
                 />
+                
             </Card>
         );
         // Icons are visual indicators usually used to describe action or intent. They are also used for displaying information.
@@ -114,7 +116,7 @@ class DetalleExcursion extends Component {
 
 const styles = StyleSheet.create({
     titulo: {
-        color: 'chocolate',
+        color: 'white',
         fontSize: 30,
         fontWeight: 'bold',
         padding: 5,

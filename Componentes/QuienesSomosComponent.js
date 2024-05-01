@@ -4,6 +4,7 @@ import { Component } from "react";
 import { HISTORIA } from "../Comun/historia";
 import { ACTIVIDADES } from "../Comun/actividades";
 import { FlatList } from "react-native-gesture-handler";
+import { baseUrl } from "../Comun/comun";
 
 function Historia(props) {
     const item = props.item;
@@ -35,7 +36,7 @@ class QuienesSomos extends Component {
                 <ListItem
                     key={index}
                     bottomDivider>
-                    <Avatar source={require('./imagenes/40Años.png')} />
+                    <Avatar source={{uri: baseUrl + item.imagen}} />
                     <ListItem.Content>
                         <ListItem.Title>{item.nombre}</ListItem.Title>
                         <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
