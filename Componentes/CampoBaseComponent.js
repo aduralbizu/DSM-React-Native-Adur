@@ -2,18 +2,21 @@ import React, { Component } from 'react';
 import Constants from 'expo-constants';
 import Calendario from './CalendarioComponent';
 import DetalleExcursion from './DetalleExcursionComponent';
-import { Platform, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Platform, StyleSheet, Image, Text } from 'react-native';
+import { Icon } from '@rneui/themed';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Home from './HomeComponent';
 import ContactoComponent from './ContactoComponent';
 import QuienesSomos from './QuienesSomosComponent';
 
+
 const Stack = createNativeStackNavigator(); //Se crea un Stack Navigator utilizando createNativeStackNavigator de React Navigation. Este Stack Navigator se utilizará para gestionar la navegación entre las diferentes pantallas de la aplicación.
 const Drawer = createDrawerNavigator();
 
-function CalendarioNavegador() {
+function CalendarioNavegador({navigation}) {
     return (//stackNavigator, que define un conjunto de pantallas apiladas una encima de la otra. Este StackNavigator gestionará la navegación entre las pantallas definidas dentro de él.
         <Stack.Navigator
             initialRouteName="Calendar" // sEsto especifica la ruta inicial dentro del StackNavigator. En este caso, la pantalla inicial será "Calendar". 
@@ -29,6 +32,7 @@ function CalendarioNavegador() {
                 component={Calendario}
                 options={{
                     title: 'Calendario Gaztaroa',
+                    headerLeft: () => (<Icon name="menu" size={28} color='white' onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())} />)
                 }}
             />
             <Stack.Screen // <Stack.Screen> define una pantalla dentro del StackNavigator.
@@ -42,7 +46,7 @@ function CalendarioNavegador() {
     );
 }
 
-function HomeNavegador() {
+function HomeNavegador({navigation}) {
     return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
         <Stack.Navigator
             initialRouteName="Home"
@@ -58,13 +62,14 @@ function HomeNavegador() {
                 component={Home}
                 options={{
                     title: 'Campo Base',
+                    headerLeft: () => (<Icon name="menu" size={28} color='white' onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())} />)
                 }}
             />
         </Stack.Navigator>
     );
 }
 
-function ContactoNavegador() {
+function ContactoNavegador({navigation}) {
     return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
         <Stack.Navigator
             initialRouteName="ContactoHijo"
@@ -80,13 +85,14 @@ function ContactoNavegador() {
                 component={ContactoComponent}
                 options={{
                     title: 'Contacto',
+                    headerLeft: () => (<Icon name="menu" size={28} color='white' onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())} />)
                 }}
             />
         </Stack.Navigator>
     );
 }
 
-function QuienesSomosNavegador() {
+function QuienesSomosNavegador({ navigation }) {
     return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
         <Stack.Navigator
             initialRouteName="Quiénes somos hijo"
@@ -94,7 +100,7 @@ function QuienesSomosNavegador() {
                 headerMode: 'screen',
                 headerTintColor: '#fff',
                 headerStyle: { backgroundColor: '#015afc' },
-                headerTitleStyle: { color: '#fff' },
+                headerTitleStyle: { color: '#fff' } 
             }}
         >
             <Stack.Screen
@@ -102,27 +108,105 @@ function QuienesSomosNavegador() {
                 component={QuienesSomos}
                 options={{
                     title: 'Quiénes somos',
+                    headerLeft: () => (<Icon name="menu" size={28} color='white' onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())} />)
+                // React Navigation dispara una acción para alternar la visibilidad del drawer, es decir, si el drawer está cerrado, lo abrirá, y si está abierto, lo cerrará.
                 }}
             />
         </Stack.Navigator>
     );
 }
 
+function CustomDrawerContent(props) {
+    return (
+        <DrawerContentScrollView {...props}>
+            <SafeAreaView style={styles.container} forceInset={{ // En React Native, SafeAreaView es un componente proporcionado por la biblioteca react-native-safe-area-context, que se utiliza para garantizar que el contenido de una aplicación se muestre dentro de las áreas seguras de la pantalla de un dispositivo móvil. Estas áreas seguras son aquellas que no están cubiertas por barras de estado, barras de navegación, notches u otros elementos del sistema operativo que pueden superponerse al contenido de la aplicación.
+                // this component only supports iOS 10+ with no support for older iOS versions or Android.
+                //Si quito SafeAreaView, se verá mejor con mi xiaomi
+                top: 'always',
+                horizontal: 'never' // safeAreaView es un componente proporcionado por react-native-safe-area-context que garantiza que el contenido se renderice dentro de las áreas seguras del dispositivo, evitando que se solape con elementos como la barra de estado o la barra de navegación. 
+                // forceInset se utiliza aquí para asegurar que haya un relleno en la parte superior (top) para evitar que el contenido se superponga con la barra de estado. 
+                // In some cases you might need more control over which paddings are applied.
+            }}>
+                <View style={styles.drawerHeader}>
+                    <View style={{ flex: 1 }}>
+                        <Image source={require('./imagenes/logo.png')} style={styles.drawerImage} />
+                    </View>
+                    <View style={{ flex: 2 }}>
+                        <Text style={styles.drawerHeaderText}> Gaztaroa</Text>
+                    </View>
+                </View>
+                <DrawerItemList {...props} />
+            </SafeAreaView>
+        </DrawerContentScrollView>
+    )
+}
+// DrawerContentScrollView: Function that returns React element to render as the content of the drawer, for example, navigation items
+// The default component for the drawer is scrollable and only contains links for the routes in the RouteConfig. You can easily override the default component to add a header, footer, or other content to the drawer. 
+// This is what we are doing here, we are customizing it
+
+// DrawerItemList: La lista de items del drawer que aparecería originalmente 
+// <View style={styles.drawerHeader}>: {/*Elementos adicionales, un header en este caso.*/}
+
+
 function DrawerNavegador() {
     return ( // <Drawer.Navigator> actúa como un contenedor para las pantallas y rutas que deseas que estén disponibles en el menú deslizante
-        <Drawer.Navigator
-            initialRouteName=" Campo base"
+        <Drawer.Navigator // Este componente define la navegación basada en un cajón lateral (drawer)
+            initialRouteName="Campo base" //la propiedad initialRouteName se utiliza para especificar qué pantalla debe mostrarse inicialmente cuando se carga el navegador de rutas
+            drawerContent={props => <CustomDrawerContent {...props} />} // Aquí se especifica el contenido del cajón lateral utilizando un componente personalizado llamado CustomDrawerContent, que se pasa como una función que toma props como argument. drawerContent={...}: Esta es una prop del Drawer Navigator que acepta un componente React que se utilizará como contenido del cajón lateral. En resumen, {...props} es una forma conveniente de pasar todas las props recibidas por un componente a otro componente dentro de la jerarquía de renderizado.
             screenOptions={{
-                headerShown: false,
+                headerShown: false, //ningún encabezado en las pantallas
                 drawerStyle: {
-                    backgroundColor: '#c2d3da',
+                    backgroundColor: '#c2d3da', // Color que se aplicará como el color de fondo del cajón lateral
                 },
+                // El bloque screenOptions que proporcionas se utiliza para definir las opciones de estilo y comportamiento que se aplicarán a todas las pantallas dentro del Drawer.Navigator
+
             }}
         >
-            <Drawer.Screen name="Campo base" component={HomeNavegador} />
-            <Drawer.Screen name="Quiénes somos" component={QuienesSomosNavegador} />
-            <Drawer.Screen name="Calendario" component={CalendarioNavegador} />
-            <Drawer.Screen name="Contacto" component={ContactoNavegador} /> 
+            <Drawer.Screen name="Campo base" component={HomeNavegador}
+                options={{
+                    drawerIcon: ({ tintColor }) => (
+                        <Icon
+                            name='home'
+                            type='font-awesome'
+                            size={24}
+                            color={tintColor}
+                        />
+                    )
+                }}
+            />
+            <Drawer.Screen name="Quiénes somos" component={QuienesSomosNavegador}
+                options={{
+                    drawerIcon: ({ tintColor }) => (
+                        <Icon
+                            name='info-circle'
+                            type='font-awesome'
+                            size={24}
+                            color={tintColor}
+                        />
+                    )
+                }} />
+            <Drawer.Screen name="Calendario" component={CalendarioNavegador}
+                options={{
+                    drawerIcon: ({ tintColor }) => (
+                        <Icon
+                            name='calendar'
+                            type='font-awesome'
+                            size={24}
+                            color={tintColor}
+                        />
+                    )
+                }} />
+            <Drawer.Screen name="Contacto" component={ContactoNavegador}
+                options={{
+                    drawerIcon: ({ tintColor }) => (
+                        <Icon
+                            name='address-card'
+                            type='font-awesome'
+                            size={24}
+                            color={tintColor}
+                        />
+                    )
+                }} />
         </Drawer.Navigator>
     );
 }
@@ -145,6 +229,8 @@ class Campobase extends Component {
 }
 // si la plataforma en la que se está ejecutando la aplicación es iOS. Si es así, se establece el relleno superior en 0, lo que significa que no hay relleno en la parte superior. Si no es iOS (es decir, es Android u otra plataforma), se utiliza Constants.statusBarHeight para establecer el relleno superior. Constants.statusBarHeight es una propiedad de Expo que proporciona la altura de la barra de estado del dispositivo. 
 export default Campobase;
+
+// contenedor para la navegación en la aplicación. Proporciona un contexto de navegación que permite a los componentes hijos acceder al estado de la navegación, como las rutas y la navegación entre pantallas.
 
 // createStackNavigator es un método proporcionado por React Navigation que te permite crear un stack navigator en tu aplicación React Native. Un stack navigator gestiona la navegación entre diferentes pantallas apilándolas una encima de la otra.
 // In React Navigation, <NavigationContainer> is a component used as the root of your navigation structure. It's typically used to wrap the entire app's navigation components.
@@ -181,3 +267,28 @@ export default Campobase;
 // //Un componente View es un elemento rectangular sin estilo propio que actúa como un contenedor flexible para otros componentes, como texto, imágenes, botones, etc. Puedes pensar en él como un contenedor invisible que ayuda a organizar y posicionar otros elementos en la pantalla de la aplicación.
 
 // export default CampoBase;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1, //Para asegurarse de que el contenido del componente ocupe todo el espacio disponible en la pantalla
+    },
+    drawerHeader: {
+        backgroundColor: '#015afc',
+        height: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        flexDirection: 'row'
+    },
+    drawerHeaderText: {
+        color: 'white',
+        fontSize: 24,
+        fontWeight: 'bold'
+    },
+    drawerImage: {
+        margin: 10,
+        width: 80,
+        height: 60
+    }
+});
+

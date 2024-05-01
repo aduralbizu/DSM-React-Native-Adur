@@ -34,7 +34,6 @@ class QuienesSomos extends Component {
             return (
                 <ListItem
                     key={index}
-                    onPress={() => navigate('DetalleExcursion', { excursionId: item.id })} // Cuando navegas de una pantalla a otra en React Navigation, puedes pasar parámetros a la nueva pantalla. Estos parámetros se pueden acceder desde la pantalla receptora a través de this.props.route.params.
                     bottomDivider>
                     <Avatar source={require('./imagenes/40Años.png')} />
                     <ListItem.Content>

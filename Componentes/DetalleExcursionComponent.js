@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
-import { Card } from '@rneui/themed';
+import { Text, View, ScrollView, FlatList } from 'react-native';
+import { COMENTARIOS } from '../Comun/comentarios';
+import { Card, Icon } from '@rneui/themed';
 import { EXCURSIONES } from '../Comun/excursiones';
 import { StyleSheet } from 'react-native';
+import { ListItem } from '@rneui/base';
+
 
 function RenderExcursion(props) {
 
@@ -19,13 +22,56 @@ function RenderExcursion(props) {
                 <Text style={{ margin: 20 }}>
                     {excursion.descripcion}
                 </Text>
+                <Icon
+                    raised //Adds box shadow to button
+                    reverse //Reverses color scheme
+                    name={props.favorita ? 'heart' : 'heart-o'} //Si props.favorita es verdadero, se muestra corazón lleno. Si no, corazón vacío
+                    type='font-awesome' //  Este prop indica que el tipo de icono es de la familia 'Font Awesome'. Esto significa que el icono se obtiene de la biblioteca de iconos Font Awesome.
+                    color='#f50' // Este prop establece el color del icono en color naranja (#f50)
+                    onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} //Si al pulsar props.favorita es cierto, hacemos console.log() avisando de que ya es favorito. En caso contrario, ejecutamos funcion props.Onpress pasada como propiedad
+                />
             </Card>
         );
+        // Icons are visual indicators usually used to describe action or intent. They are also used for displaying information.
     }
     else {
         return (<View></View>);
     }
 }
+
+function RenderComentario(props) {
+
+    const comentarios = props.comentarios;
+
+    const renderComentarioItem = ({ item, index }) => {
+        return (
+            <ListItem
+                key={index}
+                bottomDivider>
+                <ListItem.Content>
+                    <ListItem.Title>{item.comentario}</ListItem.Title>
+                    <ListItem.Subtitle>{item.valoracion} Stars</ListItem.Subtitle>
+                    <ListItem.Subtitle>-- {item.autor}, {item.dia}</ListItem.Subtitle>
+                </ListItem.Content>
+            </ListItem>
+        );
+    };
+    // El índice en la función renderComentarioItem proviene del keyExtractor definido en la FlatList
+
+    return (
+        <Card>
+            <Card.Title>Comentarios</Card.Title>
+            <Card.Divider />
+            <FlatList scrollEnabled={false}
+                data={comentarios}
+                renderItem={renderComentarioItem}
+                keyExtractor={item => item.id.toString()}
+            />
+        </Card>
+    )
+}
+
+// keyExtractor es una función utilizada en React Native (y en React en general) para proporcionar una clave única para cada elemento de una lista cuando se está utilizando un componente de lista, como FlatList o SectionList.
 
 //Cards are a great way to display information, usually containing content and actions about a single subject. 
 //These actions could include things like buttons to click, links to follow, or options to interact with the content in some way. 
@@ -36,15 +82,35 @@ class DetalleExcursion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            excursiones: EXCURSIONES
+            excursiones: EXCURSIONES,
+            comentarios: COMENTARIOS,
+            favoritos: []
         };
     }
-  
-    render(){
-        const {excursionId} = this.props.route.params;
-        return(<RenderExcursion excursion={this.state.excursiones[+excursionId]} />);
+
+    marcarFavorito(excursionId) {
+        this.setState({
+            favoritos: this.state.favoritos.concat(excursionId) // El método concat() en JavaScript se utiliza para combinar dos o más arrays. Retorna un nuevo array que contiene los elementos de los arrays originales, en el orden en que se proporcionan.
+        });
+    }
+
+    render() {
+        const { excursionId } = this.props.route.params;
+        return (
+            <ScrollView>
+                <RenderExcursion
+                    excursion={this.state.excursiones[+excursionId]}
+                    favorita={this.state.favoritos.some(el => el === excursionId)} //El método .some() en JavaScript se utiliza para verificar si al menos un elemento en un array cumple con una condición dada. Retorna true si al menos un elemento pasa la prueba especificada por la función de callback
+                    onPress={() => this.marcarFavorito(excursionId)}
+                />
+                <RenderComentario comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+            </ScrollView>
+        );
     }
 }
+
+// La expresión this.state.comentarios.filter() se utiliza en React para filtrar elementos de una matriz (array) de comentarios que se almacenan en el estado de un componente de clase
+// ScrollView es un componente proporcionado por React Native que permite desplazar contenido que es más grande que la pantalla
 
 const styles = StyleSheet.create({
     titulo: {

@@ -15,7 +15,8 @@ class Calendario extends Component {
 
         const { navigate } = this.props.navigation; //Para navegar a otra página. this.props.navigation: Esta prop proporciona acceso a la navegación en React Navigation desde el componente de pantalla actual. Contiene métodos como navigate, goBack, push, pop, entre otros, así como propiedades como state y setParams.
         // La prop navigation que se está utilizando en const { navigate } = this.props.navigation; es una prop especial proporcionada por React Navigation. Esta prop es pasada automáticamente a los componentes de pantalla (Screens) por el componente de navegación principal (StackNavigator, TabNavigator, etc.) y proporciona acceso a métodos y propiedades relacionadas con la navegación.
-
+        // Los corchetes se utilizan en JavaScript para realizar la "destructuración" de objetos. En el caso específico que mencionas, const { navigate } = this.props.navigation;, se está utilizando destructuración para extraer la propiedad navigate del objeto this.props.navigation.
+        
         const renderCalendarioItem = ({ item, index }) => {
             return (
                 <ListItem
