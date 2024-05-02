@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList } from 'react-native';
-import { COMENTARIOS } from '../Comun/comentarios';
 import { Card, Icon } from '@rneui/themed';
-import { EXCURSIONES } from '../Comun/excursiones';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
 import { baseUrl } from '../Comun/comun';
+import { connect } from 'react-redux';
+
+const mapStateToProps = state => {
+    return {
+        actividades: state.actividades,
+        excursiones: state.excursiones,
+        comentarios: state.comentarios,
+    }
+}
+
 
 
 function RenderExcursion(props) {
@@ -19,7 +27,7 @@ function RenderExcursion(props) {
                 <View style={styles.textoContainer}>
                     <Text style={styles.titulo}>{excursion.nombre}</Text>
                 </View>
-                <Card.Image source={{uri: baseUrl + excursion.imagen}} onPress={()=> console.log(baseUrl + excursion.imagen)}/>
+                <Card.Image source={{ uri: baseUrl + excursion.imagen }} onPress={() => console.log(baseUrl + excursion.imagen)} />
                 <Text style={{ margin: 20 }}>
                     {excursion.descripcion}
                 </Text>
@@ -31,7 +39,7 @@ function RenderExcursion(props) {
                     color='#f50' // Este prop establece el color del icono en color naranja (#f50)
                     onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} //Si al pulsar props.favorita es cierto, hacemos console.log() avisando de que ya es favorito. En caso contrario, ejecutamos funcion props.Onpress pasada como propiedad
                 />
-                
+
             </Card>
         );
         // Icons are visual indicators usually used to describe action or intent. They are also used for displaying information.
@@ -84,8 +92,6 @@ class DetalleExcursion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            excursiones: EXCURSIONES,
-            comentarios: COMENTARIOS,
             favoritos: []
         };
     }
@@ -101,11 +107,11 @@ class DetalleExcursion extends Component {
         return (
             <ScrollView>
                 <RenderExcursion
-                    excursion={this.state.excursiones[+excursionId]}
+                    excursion={this.props.excursiones.excursiones[+excursionId]}
                     favorita={this.state.favoritos.some(el => el === excursionId)} //El método .some() en JavaScript se utiliza para verificar si al menos un elemento en un array cumple con una condición dada. Retorna true si al menos un elemento pasa la prueba especificada por la función de callback
                     onPress={() => this.marcarFavorito(excursionId)}
                 />
-                <RenderComentario comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+                <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
             </ScrollView>
         );
     }
@@ -132,6 +138,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default DetalleExcursion;
+export default connect(mapStateToProps)(DetalleExcursion);
+
 
 

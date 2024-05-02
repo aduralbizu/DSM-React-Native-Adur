@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import { Text, ScrollView, View } from 'react-native';
 import { Card } from '@rneui/themed';
-import { EXCURSIONES } from '../Comun/excursiones';
-import { CABECERAS } from '../Comun/cabeceras';
-import { ACTIVIDADES } from '../Comun/actividades';
 import { StyleSheet } from 'react-native';
 import { baseUrl } from '../Comun/comun';
+import { connect } from 'react-redux';
+
+const mapStateToProps = state => {
+    return {
+        excursiones: state.excursiones,
+        cabeceras: state.cabeceras,
+        actividades: state.actividades
+    }
+}
 
 function RenderItem(props) {
 
@@ -18,7 +24,7 @@ function RenderItem(props) {
                 <View style={styles.textoContainer}>
                     <Text style={styles.titulo}>{item.nombre}</Text>
                 </View>
-                <Card.Image source={{uri: baseUrl + item.imagen}}/>
+                <Card.Image source={{ uri: baseUrl + item.imagen }} />
                 <Text style={{ margin: 20 }}>
                     {item.descripcion}
                 </Text>
@@ -32,22 +38,14 @@ function RenderItem(props) {
 
 class Home extends Component {
 
-    constructor(props) {
-        super(props); // En el contexto de React, super(props) se utiliza en el constructor de una clase que extiende de React.Component para llamar al constructor del componente padre con las props proporcionadas. Esto es necesario si estás escribiendo un constructor en una clase que hereda de React.Component y deseas acceder a this.props dentro del constructor.
-        this.state = {
-            excursiones: EXCURSIONES,
-            cabeceras: CABECERAS,
-            actividades: ACTIVIDADES
-        };
-    }
 
     render() {
 
         return ( // En el desarrollo de aplicaciones móviles utilizando React Native, <ScrollView> es un componente que proporciona una vista desplazable que puede contener una lista de elementos o contenido que no cabe completamente en la pantalla. Permite al usuario desplazarse verticalmente a través del contenido que contiene.
             <ScrollView>
-                <RenderItem item={this.state.cabeceras.filter((cabecera) => cabecera.destacado)[0]} />
-                <RenderItem item={this.state.excursiones.filter((excursion) => excursion.destacado)[0]} />
-                <RenderItem item={this.state.actividades.filter((actividad) => actividad.destacado)[0]} />
+                <RenderItem item={this.props.cabeceras.cabeceras.filter((cabecera) => cabecera.destacado)[0]} />
+                <RenderItem item={this.props.excursiones.excursiones.filter((excursion) => excursion.destacado)[0]} />
+                <RenderItem item={this.props.actividades.actividades.filter((actividad) => actividad.destacado)[0]} />
             </ScrollView>
         ); //Filter: Estoy eligiendo el primer destacado para cada caso
     }
@@ -72,4 +70,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Home;
+export default connect(mapStateToProps)(Home);

@@ -12,12 +12,53 @@ import Home from './HomeComponent';
 import ContactoComponent from './ContactoComponent';
 import QuienesSomos from './QuienesSomosComponent';
 import { colorGaztaroaClaro, colorGaztaroaOscuro } from '../Comun/comun';
+import { connect } from 'react-redux';
+import { fetchExcursiones, fetchComentarios, fetchCabeceras, fetchActividades } from '../redux/ActionCreators';
 
+const mapStateToProps = state => {
+    return {
+        excursiones: state.excursiones,
+        comentarios: state.comentarios,
+        cabeceras: state.cabeceras,
+        actividades: state.actividades
+    }
+} //  es una función que se utiliza para mapear parte del estado de Redux a las propiedades del componente
+
+const mapDispatchToProps = dispatch => ({
+    fetchExcursiones: () => dispatch(fetchExcursiones()),
+    fetchComentarios: () => dispatch(fetchComentarios()),
+    fetchCabeceras: () => dispatch(fetchCabeceras()),
+    fetchActividades: () => dispatch(fetchActividades()),
+}) //  es una función que se utiliza para mapear las acciones de Redux a las propiedades del componente.
+
+// mapDispatchToProps: Esta función toma la función dispatch de Redux como argumento y devuelve un objeto que vincula las acciones
+//  de Redux a funciones que serán accesibles en el componente. De esta manera, el componente puede despachar acciones simplemente 
+//  llamando a estas funciones, lo que desencadena las actualizaciones correspondientes en el estado de Redux.
+
+// Pasos:
+
+// 1- Se llama al action creator fetchExcursiones
+// 2- El action creator, en este caso fetchExcursiones, 
+// devuelve una función thunk. Esto es posible gracias al middleware Redux Thunk
+// 3 - La función thunk se ejecuta inmediatamente después de ser llamada debido al middleware Redux Thunk. 
+// Dentro de esta función, tienes acceso a dispatch.
+// Antes de pasar al reducer, el middleware Redux Thunk, realiza acciones adicionales, como manejar operaciones asíncronas.
+// 4 - La función thunk puede realizar operaciones asíncronas, como una solicitud HTTP 
+// 5 - si la solicitud HTTP es exitosa, se despacha la acción addExcursiones(excursiones) para agregar las excursiones al estado de la aplicación. 
+// Si hay un error, se despacha la acción excursionesFailed(error.message) para manejar el error. 
+// El reducer correspondiente maneja cada acción y actualiza el estado de la aplicación en consecuencia, produciendo un nuevo estado.
+
+// En Redux, los middlewares, como Redux Thunk, interceptan las acciones antes de que lleguen a los reducers. 
+// Esto significa que cuando haces dispatch de una función thunk, Redux Thunk la intercepta y la ejecuta antes de que llegue al reducer.
+// Cuando haces dispatch de una función thunk, en realidad estás pasando una función que tiene acceso a dispatch como su argumento. 
+
+// dispatch no es un middleware en sí mismo. En el contexto de Redux, dispatch es una función proporcionada por 
+// el store que se utiliza para enviar acciones a través de la cadena de middlewares y, finalmente, al reducer.
 
 const Stack = createNativeStackNavigator(); //Se crea un Stack Navigator utilizando createNativeStackNavigator de React Navigation. Este Stack Navigator se utilizará para gestionar la navegación entre las diferentes pantallas de la aplicación.
 const Drawer = createDrawerNavigator();
 
-function CalendarioNavegador({navigation}) {
+function CalendarioNavegador({ navigation }) {
     return (//stackNavigator, que define un conjunto de pantallas apiladas una encima de la otra. Este StackNavigator gestionará la navegación entre las pantallas definidas dentro de él.
         <Stack.Navigator
             initialRouteName="Calendar" // sEsto especifica la ruta inicial dentro del StackNavigator. En este caso, la pantalla inicial será "Calendar". 
@@ -47,7 +88,7 @@ function CalendarioNavegador({navigation}) {
     );
 }
 
-function HomeNavegador({navigation}) {
+function HomeNavegador({ navigation }) {
     return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
         <Stack.Navigator
             initialRouteName="Home"
@@ -70,7 +111,7 @@ function HomeNavegador({navigation}) {
     );
 }
 
-function ContactoNavegador({navigation}) {
+function ContactoNavegador({ navigation }) {
     return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
         <Stack.Navigator
             initialRouteName="ContactoHijo"
@@ -101,7 +142,7 @@ function QuienesSomosNavegador({ navigation }) {
                 headerMode: 'screen',
                 headerTintColor: '#fff',
                 headerStyle: { backgroundColor: colorGaztaroaOscuro },
-                headerTitleStyle: { color: '#fff' } 
+                headerTitleStyle: { color: '#fff' }
             }}
         >
             <Stack.Screen
@@ -110,7 +151,7 @@ function QuienesSomosNavegador({ navigation }) {
                 options={{
                     title: 'Quiénes somos',
                     headerLeft: () => (<Icon name="menu" size={28} color='white' onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())} />)
-                // React Navigation dispara una acción para alternar la visibilidad del drawer, es decir, si el drawer está cerrado, lo abrirá, y si está abierto, lo cerrará.
+                    // React Navigation dispara una acción para alternar la visibilidad del drawer, es decir, si el drawer está cerrado, lo abrirá, y si está abierto, lo cerrará.
                 }}
             />
         </Stack.Navigator>
@@ -214,6 +255,16 @@ function DrawerNavegador() {
 
 
 class Campobase extends Component {
+
+    componentDidMount() {
+        this.props.fetchExcursiones();
+        this.props.fetchComentarios();
+        this.props.fetchCabeceras();
+        this.props.fetchActividades();
+    }
+
+    // El método componentDidMount() es un método del ciclo de vida de los componentes en React que se llama automáticamente después de que un componente se haya montado en el árbol DOM.
+
     render() {
         return (
             <>
@@ -229,7 +280,19 @@ class Campobase extends Component {
     }
 }
 // si la plataforma en la que se está ejecutando la aplicación es iOS. Si es así, se establece el relleno superior en 0, lo que significa que no hay relleno en la parte superior. Si no es iOS (es decir, es Android u otra plataforma), se utiliza Constants.statusBarHeight para establecer el relleno superior. Constants.statusBarHeight es una propiedad de Expo que proporciona la altura de la barra de estado del dispositivo. 
-export default Campobase;
+export default connect(mapStateToProps, mapDispatchToProps)(Campobase);
+
+// connect es una función proporcionada por React Redux que se utiliza para conectar componentes React a la store de Redux.
+// Aquí implementamos un patrón de conexión
+// Lo que hace esta expresión es conectar el componente Campobase al store de Redux,
+//  utilizando las funciones mapStateToProps y mapDispatchToProps para mapear el estado y las acciones necesarias al componente. 
+// mapStateToProps: lee
+// mapDispatchToProps: escribe
+
+
+// La función connect es un componente de la biblioteca React Redux que se utiliza para conectar un componente de React a un
+//  store de Redux. Su función principal es proporcionar a los componentes de React acceso al estado de Redux y la capacidad 
+//  de despachar acciones para actualizar ese estado.
 
 // contenedor para la navegación en la aplicación. Proporciona un contexto de navegación que permite a los componentes hijos acceder al estado de la navegación, como las rutas y la navegación entre pantallas.
 
