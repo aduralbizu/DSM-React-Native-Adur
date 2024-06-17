@@ -4,6 +4,7 @@ import { Card } from '@rneui/themed';
 import { StyleSheet } from 'react-native';
 import { baseUrl } from '../Comun/comun';
 import { connect } from 'react-redux';
+import { IndicadorActividad } from './IndicadorActividadComponent';
 
 const mapStateToProps = state => {
     return {
@@ -17,23 +18,38 @@ function RenderItem(props) {
 
     const item = props.item;
 
-    if (item != null) {
+    if (props.isLoading) {
         return (
-            <Card>
-                <Card.Divider />
-                <View style={styles.textoContainer}>
-                    <Text style={styles.titulo}>{item.nombre}</Text>
-                </View>
-                <Card.Image source={{ uri: baseUrl + item.imagen }} />
-                <Text style={{ margin: 20 }}>
-                    {item.descripcion}
-                </Text>
-            </Card>
+            <IndicadorActividad />
+        );
+    }
+    else if (props.errMess) {
+        return (
+            <View>
+                <Text>{props.errMess}</Text>
+            </View>
         );
     }
     else {
-        return (<View></View>);
+        if (item != null) {
+            return (
+                <Card>
+                    <Card.Divider />
+                    <View style={styles.textoContainer}>
+                        <Text style={styles.titulo}>{item.nombre}</Text>
+                    </View>
+                    <Card.Image source={{ uri: baseUrl + item.imagen }} />
+                    <Text style={{ margin: 20 }}>
+                        {item.descripcion}
+                    </Text>
+                </Card>
+            );
+        }
+        else {
+            return (<View></View>);
+        }
     }
+
 }
 
 class Home extends Component {
@@ -44,7 +60,10 @@ class Home extends Component {
         return ( // En el desarrollo de aplicaciones móviles utilizando React Native, <ScrollView> es un componente que proporciona una vista desplazable que puede contener una lista de elementos o contenido que no cabe completamente en la pantalla. Permite al usuario desplazarse verticalmente a través del contenido que contiene.
             <ScrollView>
                 <RenderItem item={this.props.cabeceras.cabeceras.filter((cabecera) => cabecera.destacado)[0]} />
-                <RenderItem item={this.props.excursiones.excursiones.filter((excursion) => excursion.destacado)[0]} />
+                <RenderItem item={this.props.excursiones.excursiones.filter((excursion) => excursion.destacado)[0]}
+                    isLoading={this.props.excursiones.isLoading}
+                    errMess={this.props.excursiones.errMess}
+                />
                 <RenderItem item={this.props.actividades.actividades.filter((actividad) => actividad.destacado)[0]} />
             </ScrollView>
         ); //Filter: Estoy eligiendo el primer destacado para cada caso

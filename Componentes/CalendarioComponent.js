@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { ListItem, Avatar } from '@rneui/themed';
-import { SafeAreaView, FlatList } from 'react-native';
+import { SafeAreaView, FlatList, View, Text} from 'react-native';
 import { baseUrl } from '../Comun/comun';
 import { connect } from 'react-redux';
+import { IndicadorActividad } from './IndicadorActividadComponent';
 
 const mapStateToProps = state => {
     return {
@@ -35,16 +36,33 @@ class Calendario extends Component {
             );
         };
 
-        return (
-            <SafeAreaView>
-                <FlatList
-                    data={this.props.excursiones.excursiones}
-                    renderItem={renderCalendarioItem}
-                    keyExtractor={item => item.id.toString()}
-                />
-            </SafeAreaView>
-        ); //En React Native, FlatList es un componente utilizado para renderizar listas de datos en una aplicación móvil de manera eficiente.
-        // renderItem: Takes an item from data and renders it into the list.
+        isLoading = this.props.excursiones.isLoading
+        errMess = this.props.excursiones.errMess
+
+        if (isLoading) {
+            return (
+                <IndicadorActividad />
+            );
+        }
+        else if (errMess) {
+            return (
+                <View>
+                    <Text>{errMess}</Text>
+                </View>
+            );
+        }
+        else {
+            return (
+                <SafeAreaView>
+                    <FlatList
+                        data={this.props.excursiones.excursiones}
+                        renderItem={renderCalendarioItem}
+                        keyExtractor={item => item.id.toString()}
+                    />
+                </SafeAreaView>
+            ); //En React Native, FlatList es un componente utilizado para renderizar listas de datos en una aplicación móvil de manera eficiente.
+            // renderItem: Takes an item from data and renders it into the list.
+        }
     }
 }
 

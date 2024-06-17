@@ -5,16 +5,20 @@ import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
 import { baseUrl } from '../Comun/comun';
 import { connect } from 'react-redux';
+import { postFavorito } from '../redux/ActionCreators';
 
 const mapStateToProps = state => {
     return {
         actividades: state.actividades,
         excursiones: state.excursiones,
         comentarios: state.comentarios,
+        favoritos: state.favoritos
     }
 }
 
-
+const mapDispatchToProps = dispatch => ({
+    postFavorito: (excursionId) => dispatch(postFavorito(excursionId))
+})
 
 function RenderExcursion(props) {
 
@@ -89,17 +93,9 @@ function RenderComentario(props) {
 //Card.Divider Add divider to the card which acts as a separator between elements. This, Receives all Divider props.
 
 class DetalleExcursion extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            favoritos: []
-        };
-    }
 
     marcarFavorito(excursionId) {
-        this.setState({
-            favoritos: this.state.favoritos.concat(excursionId) // El método concat() en JavaScript se utiliza para combinar dos o más arrays. Retorna un nuevo array que contiene los elementos de los arrays originales, en el orden en que se proporcionan.
-        });
+        this.props.postFavorito(excursionId)
     }
 
     render() {
@@ -108,7 +104,7 @@ class DetalleExcursion extends Component {
             <ScrollView>
                 <RenderExcursion
                     excursion={this.props.excursiones.excursiones[+excursionId]}
-                    favorita={this.state.favoritos.some(el => el === excursionId)} //El método .some() en JavaScript se utiliza para verificar si al menos un elemento en un array cumple con una condición dada. Retorna true si al menos un elemento pasa la prueba especificada por la función de callback
+                    favorita={this.props.favoritos.favoritos.some(el => el === excursionId)}
                     onPress={() => this.marcarFavorito(excursionId)}
                 />
                 <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
@@ -138,7 +134,8 @@ const styles = StyleSheet.create({
     }
 });
 
-export default connect(mapStateToProps)(DetalleExcursion);
+export default connect(mapStateToProps, mapDispatchToProps)(DetalleExcursion);
+
 
 
 

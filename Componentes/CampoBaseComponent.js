@@ -261,6 +261,7 @@ class Campobase extends Component {
         this.props.fetchComentarios();
         this.props.fetchCabeceras();
         this.props.fetchActividades();
+        
     }
 
     // El método componentDidMount() es un método del ciclo de vida de los componentes en React que se llama automáticamente después de que un componente se haya montado en el árbol DOM.

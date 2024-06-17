@@ -5,6 +5,7 @@ import { Component } from "react";
 import { FlatList } from "react-native-gesture-handler";
 import { baseUrl } from "../Comun/comun";
 import { connect } from "react-redux";
+import { IndicadorActividad } from "./IndicadorActividadComponent";
 
 const mapStateToProps = state => {
     return {
@@ -30,7 +31,7 @@ function Historia(props) {
 
 class QuienesSomos extends Component {
 
-    constructor(props) {
+    constructor(props) {  
         super(props);
         this.state = {
             historia: HISTORIA
@@ -53,23 +54,50 @@ class QuienesSomos extends Component {
             );
         };
 
-        return (
+        if (this.props.actividades.isLoading) {
+            return (
+                <ScrollView>
+                    <Historia item={this.state.historia} />
+                    <Card>
+                        <Card.Title>"Actividades y recursos"</Card.Title>
+                        <Card.Divider />
+                        <IndicadorActividad />
+                    </Card>
+                </ScrollView>
+            );
+        }
 
-            <ScrollView>
-                <Historia item={this.state.historia} />
+        else if (this.props.actividades.errMess) {
+            return (
+                <ScrollView>
+                    <Historia item={this.state.historia} />
+                    <Card>
+                        <Card.Title>"Actividades y recursos"</Card.Title>
+                        <Card.Divider />
+                        <Text>{this.props.actividades.errMess}</Text>
+                    </Card>
+                </ScrollView>
+            );
+        }
+        else {
+            return (
 
-                <Card>
-                    <Card.Title>"Actividades y recursos"</Card.Title>
-                    <Card.Divider />
-                    <FlatList scrollEnabled={false}
-                        data={this.props.actividades.actividades}
-                        renderItem={renderActividadesItem}
-                        keyExtractor={item => item.id.toString()}
-                    />
-                </Card>
-            </ScrollView>
+                <ScrollView>
+                    <Historia item={this.state.historia} />
 
-        );
+                    <Card>
+                        <Card.Title>"Actividades y recursos"</Card.Title>
+                        <Card.Divider />
+                        <FlatList scrollEnabled={false}
+                            data={this.props.actividades.actividades}
+                            renderItem={renderActividadesItem}
+                            keyExtractor={item => item.id.toString()}
+                        />
+                    </Card>
+                </ScrollView>
+
+            );
+        }
     }
 }
 

@@ -41,6 +41,7 @@ export const fetchComentarios = () => (dispatch) => { // a fetchComentarios que 
 // Cuando hago dispatch, iré a los reducers
 
 // Las acciones son objetos responsables de proporcionar información a los 
+
 // reducers para que actúen en base a ellas:
 
 export const comentariosFailed = (errmess) => ({
@@ -162,4 +163,19 @@ export const actividadesFailed = (errmess) => ({
 export const addActividades = (actividades) => ({
     type: ActionTypes.ADD_ACTIVIDADES,
     payload: actividades
+});
+
+export const postFavorito = (excursionId) => (dispatch) => {
+    setTimeout(() => {
+        dispatch(addFavorito(excursionId));
+    }, 2000);
+};
+// La función postFavorito() (la cual es una función Thunk) se limita a introducir un 
+// retardo de dos segundos, para “simular” la comunicación con el servidor, para,
+// a continuación, despachar la función addFavorito que será la encargada de 
+// devolver la acción de tipo ADD_FAVORITO
+
+export const addFavorito = (excursionId) => ({
+    type: ActionTypes.ADD_FAVORITO,
+    payload: excursionId
 });

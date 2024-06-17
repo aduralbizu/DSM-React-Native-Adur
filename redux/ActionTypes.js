@@ -9,6 +9,8 @@ export const CABECERAS_FAILED = 'CABECERAS_FAILED';
 export const ACTIVIDADES_LOADING = 'ACTIVIDADES_LOADING';
 export const ADD_ACTIVIDADES = 'ADD_ACTIVIDADES';
 export const ACTIVIDADES_FAILED = 'ACTIVIDADES_FAILED';
+export const POST_FAVORITO = 'POST_FAVORITO';
+export const ADD_FAVORITO = 'ADD_FAVORITO';
 
 // En el fichero ActionTypes.js se definirán todos los tipos de acciones asociados a nuestro repositorio Redux
 

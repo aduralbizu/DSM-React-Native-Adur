@@ -17,3 +17,7 @@ export const excursiones = (state = { isLoading: true,
           return state;
       }
 };
+
+// state = { isLoading: true, errMess: null, excursiones:[] }:
+
+// Esto proporciona un estado inicial por defecto si no se proporciona un estado anterior
