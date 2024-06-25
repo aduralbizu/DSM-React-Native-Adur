@@ -1,5 +1,5 @@
 import * as ActionTypes from './ActionTypes';
-import { baseUrl } from '../Comun/comun';
+import { baseUrl, baseUrlComentarios } from '../Comun/comun';
 
 // Finalmente, en el fichero ActionCreators.js implementaremos las funciones (Thunk) y las
 // acciones que darán respuesta a los requerimientos de nuestra aplicación. Por ahora, lo 
@@ -11,9 +11,34 @@ import { baseUrl } from '../Comun/comun';
 // las funciones thunks se utilizan para crear acciones asíncronas o acciones complejas que necesitan
 //  realizar operaciones asíncronas antes de despachar una acción estándar.
 
+// export const fetchComentarios = () => (dispatch) => { // a fetchComentarios que se utiliza para realizar una solicitud HTTP para obtener comentarios de una URL específica 
+//     return fetch(baseUrlComentarios + 'comentarios.json') //.json, importante
+//         .then(response => {
+//            //console.log(response);
+//             if (response.ok) {
+//                 return response;
+//             } else {
+//                 var error = new Error('Error ' + response.status + ': ' + response.statusText);
+//                 error.response = response;
+//                 throw error;
+//             }
+//         },
+//             error => {
+//                 var errmess = new Error(error.message);
+//                 throw errmess;
+//             })
+//         .then(response => response.json())
+//         .then(comentarios => dispatch(addComentarios(comentarios))) // comentarios es el JSON obtenido de la respuesta de la solicitud HTTP. Se obtendra después de que la promesa encargada de convertir a json sea devuelta
+            
+//         .catch(error => dispatch(comentariosFailed(error.message)));
+// };
+
+
+
 export const fetchComentarios = () => (dispatch) => { // a fetchComentarios que se utiliza para realizar una solicitud HTTP para obtener comentarios de una URL específica 
-    return fetch(baseUrl + 'comentarios')
+    return fetch(baseUrlComentarios + 'comentarios.json') //.json, importante
         .then(response => {
+           //console.log(response);
             if (response.ok) {
                 return response;
             } else {
@@ -27,7 +52,17 @@ export const fetchComentarios = () => (dispatch) => { // a fetchComentarios que 
                 throw errmess;
             })
         .then(response => response.json())
-        .then(comentarios => dispatch(addComentarios(comentarios))) // comentarios es el JSON obtenido de la respuesta de la solicitud HTTP. Se obtendra después de que la promesa encargada de convertir a json sea devuelta
+        .then(comentarios => {
+            // Convierte el objeto de comentarios en un array para manejarlo fácilmente
+            const comentariosArray = Object.keys(comentarios).map(key => ({ // evitar problemas cuando indice en firebase no es 0,1,2.. y es el que genera automaticamente con axios.post
+                id: key,
+                ...comentarios[key]
+            }));
+            dispatch(addComentarios(comentariosArray)); // comentarios es el JSON obtenido de la respuesta de la solicitud HTTP. Se obtendra después de que la promesa encargada de convertir a json sea devuelta
+
+        })
+            
+            
         .catch(error => dispatch(comentariosFailed(error.message)));
 };
 //función doblemente anidada para no tener que pasar dispatch como argumento
@@ -167,13 +202,15 @@ export const addActividades = (actividades) => ({
 
 export const postFavorito = (excursionId) => (dispatch) => {
     setTimeout(() => {
-        dispatch(addFavorito(excursionId));
+        dispatch(addFavorito(excursionId)); 
     }, 2000);
 };
+
 // La función postFavorito() (la cual es una función Thunk) se limita a introducir un 
 // retardo de dos segundos, para “simular” la comunicación con el servidor, para,
 // a continuación, despachar la función addFavorito que será la encargada de 
 // devolver la acción de tipo ADD_FAVORITO
+
 
 export const addFavorito = (excursionId) => ({
     type: ActionTypes.ADD_FAVORITO,

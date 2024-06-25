@@ -157,7 +157,6 @@ function QuienesSomosNavegador({ navigation }) {
         </Stack.Navigator>
     );
 }
-
 function CustomDrawerContent(props) {
     return (
         <DrawerContentScrollView {...props}>
@@ -252,7 +251,6 @@ function DrawerNavegador() {
         </Drawer.Navigator>
     );
 }
-
 
 class Campobase extends Component {
 
