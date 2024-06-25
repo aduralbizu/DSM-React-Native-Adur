@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Pressable } from 'react-native';
 import { Card, Icon, Input } from '@rneui/themed';
 import { Button, ListItem } from '@rneui/base';
-import { baseUrl, baseUrlComentarios } from '../Comun/comun';
+import { baseUrl, baseUrlFirebase } from '../Comun/comun';
 import { connect } from 'react-redux';
 import { postFavorito, postComentario } from '../redux/ActionCreators';
 import { colorGaztaroaOscuro, colorGaztaroaClaro } from '../Comun/comun';
@@ -73,7 +73,7 @@ function RenderExcursion(props) {
                 <View style={styles.textoContainer}>
                     <Text style={styles.titulo}>{excursion.nombre}</Text>
                 </View>
-                <Card.Image source={{ uri: baseUrl + excursion.imagen }} onPress={() => console.log(baseUrl + excursion.imagen)} />
+                <Card.Image source={{ uri: excursion.imagen }} onPress={() => console.log(excursion.imagen)} />
                 <Text style={{ margin: 20 }}>
                     {excursion.descripcion}
                 </Text>
@@ -225,7 +225,7 @@ class DetalleExcursion extends Component {
         }
 
         // axios de forma asincronica por defecto, resuelve promesas
-        axios.post(baseUrlComentarios, resena)
+        axios.post(baseUrlFirebase, resena)
         .then((response) => {
             console.log("El comentario se ha insertado en la BD");
         })

@@ -1,5 +1,5 @@
 import * as ActionTypes from './ActionTypes';
-import { baseUrl, baseUrlComentarios } from '../Comun/comun';
+import { baseUrl, baseUrlFirebase } from '../Comun/comun';
 
 // Finalmente, en el fichero ActionCreators.js implementaremos las funciones (Thunk) y las
 // acciones que darán respuesta a los requerimientos de nuestra aplicación. Por ahora, lo 
@@ -36,7 +36,7 @@ import { baseUrl, baseUrlComentarios } from '../Comun/comun';
 
 
 export const fetchComentarios = () => (dispatch) => { // a fetchComentarios que se utiliza para realizar una solicitud HTTP para obtener comentarios de una URL específica 
-    return fetch(baseUrlComentarios + 'comentarios.json') //.json, importante
+    return fetch(baseUrlFirebase + 'comentarios.json') //.json, importante
         .then(response => {
            //console.log(response);
             if (response.ok) {
@@ -93,7 +93,7 @@ export const fetchExcursiones = () => (dispatch) => {
 
     dispatch(excursionesLoading());
 
-    return fetch(baseUrl + 'excursiones')
+    return fetch(baseUrlFirebase + 'excursiones.json')
         .then(response => {
             if (response.ok) {
                 return response;
@@ -130,7 +130,7 @@ export const fetchCabeceras = () => (dispatch) => {
 
     dispatch(cabecerasLoading());
 
-    return fetch(baseUrl + 'cabeceras')
+    return fetch(baseUrlFirebase + 'cabeceras.json')
         .then(response => {
             if (response.ok) {
                 return response;
@@ -167,7 +167,7 @@ export const fetchActividades = () => (dispatch) => {
 
     dispatch(actividadesLoading());
 
-    return fetch(baseUrl + 'actividades')
+    return fetch(baseUrlFirebase + 'actividades.json')
         .then(response => {
             if (response.ok) {
                 return response;

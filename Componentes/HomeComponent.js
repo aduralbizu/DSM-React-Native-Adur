@@ -38,7 +38,7 @@ function RenderItem(props) {
                     <View style={styles.textoContainer}>
                         <Text style={styles.titulo}>{item.nombre}</Text>
                     </View>
-                    <Card.Image source={{ uri: baseUrl + item.imagen }} />
+                    <Card.Image source={{ uri: item.imagen }} />
                     <Text style={{ margin: 20 }}>
                         {item.descripcion}
                     </Text>

@@ -170,7 +170,7 @@ function CustomDrawerContent(props) {
             }}>
                 <View style={styles.drawerHeader}>
                     <View style={{ flex: 1 }}>
-                        <Image source={require('./imagenes/logo.png')} style={styles.drawerImage} />
+                        <Image source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/dsm-gaztaroa.appspot.com/o/logo.png?alt=media' }} style={styles.drawerImage} />
                     </View>
                     <View style={{ flex: 2 }}>
                         <Text style={styles.drawerHeaderText}> Gaztaroa</Text>

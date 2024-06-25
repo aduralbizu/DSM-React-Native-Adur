@@ -26,7 +26,7 @@ class Calendario extends Component {
                     onPress={() => navigate('DetalleExcursion', { excursionId: item.id })} // Cuando navegas de una pantalla a otra en React Navigation, puedes pasar parámetros a la nueva pantalla. Estos parámetros se pueden acceder desde la pantalla receptora a través de this.props.route.params.
                     // The header provided by the native stack navigator will automatically include a back button when it is possible to go back from the active screen (if there is only one screen in the navigation stack, there is nothing that you can go back to, and so there is no back button)
                     bottomDivider>
-                    <Avatar source={{ uri: baseUrl + item.imagen }} />
+                    <Avatar source={{ uri: item.imagen }} />
 
                     <ListItem.Content>
                         <ListItem.Title>{item.nombre}</ListItem.Title>
