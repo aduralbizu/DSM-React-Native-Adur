@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => ({
 function RenderExcursion(props) {
 
     const excursion = props.excursion;
-
+     
     // GESTION DEL CALENDARIO
     const openCalendar = async () => {
         const { status } = await Calendar.requestCalendarPermissionsAsync(); // Solicita permisos para acceder al calendario, espera a promesa
@@ -43,12 +43,13 @@ function RenderExcursion(props) {
             console.log('Calendars:', calendars);
 
             // Crea los detalles del evento
+            // '2024-07-01T10:00:00'
             const eventDetails = {
-                title: 'Excursion Event', // Título del evento
-                startDate: new Date(), // Fecha de inicio del evento, se establece en la fecha y hora actual
-                endDate: new Date(), // Fecha de finalización del evento, también se establece en la fecha y hora actual
+                title: excursion.nombre, // Título del evento
+                startDate: new Date(excursion.fechaInicio), 
+                endDate: new Date(excursion.fechaFin), // Fecha de finalización del evento, también se establece en la fecha y hora actual
                 timeZone: 'GMT', // Zona horaria del evento, en este caso se establece en GMT
-                location: 'Excursion Location' // Ubicación del evento, en este caso se establece como 'Excursion Location'
+                location: excursion.nombre // Ubicación del evento, en este caso se establece como 'Excursion Location'
             };
 
             // Busca el calendario por defecto (primario) o utiliza el primer calendario encontrado
@@ -199,7 +200,7 @@ class DetalleExcursion extends Component {
         }
     }
 
-        async componentDidMount() {
+        async componentDidMount() { // se podria mirar de inicializarlo en App para mejor rendimiento
         const favorites = await loadFavorites();
         console.log(favorites);
         favorites.forEach(fav => {
@@ -225,7 +226,7 @@ class DetalleExcursion extends Component {
         }
 
         // axios de forma asincronica por defecto, resuelve promesas
-        axios.post(baseUrlFirebase, resena)
+        axios.post(`${baseUrlFirebase}/comentarios.json`, resena)
         .then((response) => {
             console.log("El comentario se ha insertado en la BD");
         })
@@ -234,8 +235,8 @@ class DetalleExcursion extends Component {
              alert("Se ha producido un error");
         })
         
-
-        
+        // destacado en firebase?
+        //si pongo esto en then escribe coment vacio
         this.props.postComentario(excursionId, this.state.valoracion, this.state.autor, this.state.comentario); // en ActionReducers recibe 4 params, a traves de Maps...
         this.toggleModal(); //alterno apertura y cierre modal
     }
