@@ -217,20 +217,21 @@ export const addFavorito = (excursionId) => ({
     payload: excursionId
 });
 
-export const postComentario = (excursionId, valoracion, autor, comentario) => (dispatch) => {
+export const postComentario = (excursionId, valoracion, autor, comentario, imagen) => (dispatch) => {
     let dia = new Date().toString();
-    console.log(excursionId, valoracion, autor, comentario, dia);
+    console.log(excursionId, valoracion, autor, comentario, dia, imagen);
     setTimeout(() => {
-        dispatch(addComentario(excursionId, valoracion, autor, comentario, dia));
+        dispatch(addComentario(excursionId, valoracion, autor, comentario, dia, imagen));
     }, 2000);
 };
-export const addComentario = (excursionId, valoracion, autor, comentario, dia) => ({
+export const addComentario = (excursionId, valoracion, autor, comentario, dia, imagen) => ({
     type: ActionTypes.ADD_COMENTARIO,
     payload: {
         excursionId: excursionId,
         valoracion: valoracion,
         comentario: comentario,
         autor: autor,
-        dia: dia
+        dia: dia,
+        imagen: imagen
     }
 });

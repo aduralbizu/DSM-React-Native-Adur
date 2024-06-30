@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Pressable } from 'react-native';
+import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Pressable, Image, ActivityIndicator } from 'react-native';
 import { Card, Icon, Input } from '@rneui/themed';
-import { Button, ListItem } from '@rneui/base';
+import { Button, ListItem, Avatar } from '@rneui/base';
 import { baseUrl, baseUrlFirebase } from '../Comun/comun';
 import { connect } from 'react-redux';
 import { postFavorito, postComentario } from '../redux/ActionCreators';
 import { colorGaztaroaOscuro, colorGaztaroaClaro } from '../Comun/comun';
 import { Rating, AirbnbRating } from 'react-native-ratings';
-
-
+import { Camera } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from './ConfigFirebase';
 import axios from "axios";
 import * as Calendar from 'expo-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,13 +26,13 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     postFavorito: (excursionId) => dispatch(postFavorito(excursionId)),
-    postComentario: (excursionId, valoracion, autor, comentario) => dispatch(postComentario(excursionId, valoracion, autor, comentario))
+    postComentario: (excursionId, valoracion, autor, comentario, imagen) => dispatch(postComentario(excursionId, valoracion, autor, comentario, imagen))
 })
 
 function RenderExcursion(props) {
 
     const excursion = props.excursion;
-     
+
     // GESTION DEL CALENDARIO
     const openCalendar = async () => {
         const { status } = await Calendar.requestCalendarPermissionsAsync(); // Solicita permisos para acceder al calendario, espera a promesa
@@ -46,7 +48,7 @@ function RenderExcursion(props) {
             // '2024-07-01T10:00:00'
             const eventDetails = {
                 title: excursion.nombre, // Título del evento
-                startDate: new Date(excursion.fechaInicio), 
+                startDate: new Date(excursion.fechaInicio),
                 endDate: new Date(excursion.fechaFin), // Fecha de finalización del evento, también se establece en la fecha y hora actual
                 timeZone: 'GMT', // Zona horaria del evento, en este caso se establece en GMT
                 location: excursion.nombre // Ubicación del evento, en este caso se establece como 'Excursion Location'
@@ -57,7 +59,7 @@ function RenderExcursion(props) {
             const defaultCalendar = calendars.find(calendar => calendar.isPrimary) || calendars[0];
 
             if (defaultCalendar) {
-            // Crea un nuevo evento en el calendario seleccionado
+                // Crea un nuevo evento en el calendario seleccionado
                 const newEventId = await Calendar.createEventAsync(defaultCalendar.id, eventDetails);
                 Alert.alert('Evento creado', `Evento creado con ID: ${newEventId}`);
             }
@@ -95,7 +97,6 @@ function RenderExcursion(props) {
                         color={colorGaztaroaOscuro} // Este prop establece el color del icono en color naranja (#f50)
                         onPress={() => props.toggleModal()}
                     />
-
                     <Icon
                         raised
                         reverse
@@ -104,7 +105,7 @@ function RenderExcursion(props) {
                         color={colorGaztaroaClaro}
                         onPress={openCalendar}
                     />
-                  
+
                 </View>
             </Card>
         );
@@ -125,11 +126,17 @@ function RenderComentario(props) {
             <ListItem
                 key={index}
                 bottomDivider>
+
                 <ListItem.Content>
                     <ListItem.Title>{item.comentario}</ListItem.Title>
                     <ListItem.Subtitle>{item.valoracion}</ListItem.Subtitle>
                     <ListItem.Subtitle>-- {item.autor}, {item.dia}</ListItem.Subtitle>
                 </ListItem.Content>
+                {item.imagen && <Avatar
+                    source={{ uri: item.imagen }} // Replace 'item.imagen' with your image URI
+                    size="medium" // Adjust size as needed
+                />}
+
             </ListItem>
         );
     };
@@ -141,7 +148,7 @@ function RenderComentario(props) {
             <FlatList scrollEnabled={false}
                 data={comentarios}
                 renderItem={renderComentarioItem}
-                keyExtractor={item => item.id.toString()}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
             />
         </Card>
     )
@@ -155,7 +162,7 @@ function RenderComentario(props) {
 //Card.Divider Add divider to the card which acts as a separator between elements. This, Receives all Divider props.
 
 // forzosamente asíncronas para que funcionen
-const storeFavorite = async (favoriteId) => { 
+const storeFavorite = async (favoriteId) => {
     try {
         let favorites = await AsyncStorage.getItem('favorites'); // obtener favs actuales desde AsyncStorage
         if (favorites) {
@@ -172,9 +179,9 @@ const storeFavorite = async (favoriteId) => {
     }
 };
 
-  const loadFavorites = async () => {
+const loadFavorites = async () => {
     try {
-        let favorites =  await AsyncStorage.getItem('favorites'); 
+        let favorites = await AsyncStorage.getItem('favorites');
         console.log('desde getItem'); // [0,2]
         console.log(favorites);
         if (favorites) {
@@ -188,6 +195,7 @@ const storeFavorite = async (favoriteId) => {
     }
 };
 
+
 class DetalleExcursion extends Component {
 
     constructor(props) {
@@ -196,13 +204,19 @@ class DetalleExcursion extends Component {
             valoracion: 5,
             autor: '',
             comentario: '',
-            showModal: false
+            showModal: false,
+            hasCameraPermission: null,
+            camera: null,
+            imagen: null,
+            showLoadingModal: false,
+            loading: false
         }
+        
     }
 
-        async componentDidMount() { // se podria mirar de inicializarlo en App para mejor rendimiento
+    async componentDidMount() { // se podria mirar de inicializarlo en App para mejor rendimiento
         const favorites = await loadFavorites();
-        console.log(favorites);
+        // console.log(favorites);
         favorites.forEach(fav => {
             this.props.postFavorito(fav); // fav indice de excursion, 0,1,2,...
         });
@@ -212,33 +226,63 @@ class DetalleExcursion extends Component {
         this.setState({ showModal: !this.state.showModal });
     }
 
-    gestionarComentario(excursionId) {
-    
-        let dia = new Date().toString();
+    gestionarComentario = async (excursionId) => {
+        this.setState({ showLoadingModal: true, loading: true });
 
+        let dia = new Date().toString();
         const resena = {
             autor: this.state.autor,
             comentario: this.state.comentario,
             dia: dia,
             excursionId: excursionId,
             id: this.props.comentarios.comentarios.length, // logica de aumento de id-> length
-            valoracion: this.state.valoracion
+            valoracion: this.state.valoracion,
+            imagen: null
         }
+
+        const imagenURL = this.state.imagen;
+        if (imagenURL) {
+            try {
+                const response = await fetch(imagenURL);
+                const blob = await response.blob();
+
+                const storageRef = ref(storage, `CommentImages/${new Date().getTime()}.jpeg`); // Ruta única imágenes
+                const snapshot = await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+                console.log('Se subió el archivo');
+
+                let downloadURL = await getDownloadURL(snapshot.ref);
+                const indexFin = downloadURL.indexOf("&token");
+                downloadURL = downloadURL.substring(0, indexFin);
+                resena.imagen = downloadURL;
+
+                this.guardarComentario(resena)
+
+            } catch (error) {
+                console.error('Error al subir o obtener la URL de descarga de la imagen', error.message);
+                // Manejar el error adecuadamente
+            }
+        } else {
+            this.guardarComentario(resena)
+        }
+    }
+
+    guardarComentario(resena) {
+        
+        this.props.postComentario(resena.excursionId, resena.valoracion, resena.autor, resena.comentario, resena.imagen); // en ActionReducers recibe 4 params, a traves de Maps...
 
         // axios de forma asincronica por defecto, resuelve promesas
         axios.post(`${baseUrlFirebase}/comentarios.json`, resena)
-        .then((response) => {
-            console.log("El comentario se ha insertado en la BD");
-        })
-        .catch((error) => {
-            console.log(error);
-             alert("Se ha producido un error");
-        })
-        
+            .then((response) => {
+                console.log("El comentario se ha insertado en la BD");
+                this.setState({ loading: false, showLoadingModal: false, imagen: null }); // Finaliza el estado de carga y oculta modal
+                this.resetForm();
+            })
+            .catch((error) => {
+                console.log(error);
+                alert("Se ha producido un error");
+            })
+
         // destacado en firebase?
-        //si pongo esto en then escribe coment vacio
-        this.props.postComentario(excursionId, this.state.valoracion, this.state.autor, this.state.comentario); // en ActionReducers recibe 4 params, a traves de Maps...
-        this.toggleModal(); //alterno apertura y cierre modal
     }
 
     resetForm() {
@@ -251,13 +295,48 @@ class DetalleExcursion extends Component {
         });
     }
 
-    
-
     marcarFavorito(excursionId) {
         this.props.postFavorito(excursionId)
-
         storeFavorite(excursionId);
+    }
 
+    async openCamera() {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status === 'granted') {
+            await ImagePicker.launchCameraAsync().then(result => {
+                if (!result.cancelled) {
+                    console.log(result);
+                    this.setState({ imagen: result.assets[0].uri }); //guardo la uri en el estado
+                }
+            }).catch(error => {
+                Alert.alert('Aviso', 'Cerró la cámara');
+            })
+        } else {
+            Alert.alert('Permiso denegado', 'No se pudo obtener acceso a la cámara');
+        }
+    }
+
+    async openGallery() {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        // No permissions request is necessary for launching the image library
+        if (status === 'granted') {
+            await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            }).then(result => {
+                if (!result.cancelled) {
+                    console.log(result);
+                    this.setState({ imagen: result.assets[0].uri }); //guardo la uri en el estado
+                }
+            }).catch(error => {
+                Alert.alert('Aviso', 'Cerró la galería');
+            });
+
+        } else {
+            Alert.alert('Permiso denegado', 'No se pudo obtener acceso a la cámara');
+        }
     }
 
     render() {
@@ -271,13 +350,13 @@ class DetalleExcursion extends Component {
                     toggleModal={() => { this.toggleModal() }}
                     showModal={this.state.showModal}
                 />
-                { console.log("inicio comentarios")}
-                { console.log(this.props.comentarios.comentarios)}
-                { console.log("fin comentarios")}
+                {/* {console.log("inicio comentarios")}
+                {console.log(this.props.comentarios.comentarios)}
+                {console.log("fin comentarios")}
 
-                { console.log("inicio comentarios filter")}
-                { console.log(this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId))}
-                { console.log("fin comentarios filter")}
+                {console.log("inicio comentarios filter")}
+                {console.log(this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId))}
+                {console.log("fin comentarios filter")} */}
 
                 <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
 
@@ -306,10 +385,31 @@ class DetalleExcursion extends Component {
                             onChangeText={value => this.setState({ comentario: value })}
                         />
 
+                        {this.state.imagen && <Image source={{ uri: this.state.imagen }} style={styles.image} />}
+
+                        <View style={styles.container}>
+                            <Icon
+                                raised //Adds box shadow to button
+                                reverse //Reverses color scheme
+                                name={'camera'} //Si props.favorita es verdadero, se muestra corazón lleno. Si no, corazón vacío
+                                type='font-awesome' //  Este prop indica que el tipo de icono es de la familia 'Font Awesome'. Esto significa que el icono se obtiene de la biblioteca de iconos Font Awesome.
+                                color={colorGaztaroaOscuro} // Este prop establece el color del icono en color naranja (#f50)
+                                onPress={() => this.openCamera()}
+                            />
+
+                            <Icon
+                                raised //Adds box shadow to button
+                                reverse //Reverses color scheme
+                                name={'image'} //Si props.favorita es verdadero, se muestra corazón lleno. Si no, corazón vacío
+                                type='font-awesome' //  Este prop indica que el tipo de icono es de la familia 'Font Awesome'. Esto significa que el icono se obtiene de la biblioteca de iconos Font Awesome.
+                                color='#f50' // Este prop establece el color del icono en color naranja (#f50)
+                                onPress={() => this.openGallery()}
+                            />
+                        </View>
                         <Button
                             color="transparent"
                             title="ENVIAR"
-                            onPress={() => { this.gestionarComentario(excursionId); this.resetForm(); }}
+                            onPress={() => { this.gestionarComentario(excursionId); this.resetForm(); this.toggleModal() }}
                             titleStyle={styles.buttonText}
                         // gestiono comentario y reseteo 
                         />
@@ -320,6 +420,21 @@ class DetalleExcursion extends Component {
                             titleStyle={styles.buttonText}
                         // gestiono comentario y reseteo 
                         />
+                    </View>
+                </Modal>
+
+                {/* Modal de carga: */}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={this.state.showLoadingModal}
+                    onRequestClose={() => this.setState({ showLoadingModal: false })}
+                >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+                            <ActivityIndicator size="large" color="#0000ff" />
+                            {this.state.loading && <Text>Loading...</Text>}
+                        </View>
                     </View>
                 </Modal>
             </ScrollView>
@@ -352,7 +467,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',  // Centra los elementos verticalmente
     },
     rating: {
-        paddingTop: 100
+        paddingTop: 100,
+        paddingBottom: 15
     },
     modal: {
         flex: 1,
@@ -362,6 +478,16 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: colorGaztaroaOscuro,
+    },
+    image: {
+        width: 100,
+        height: 100,
+        marginVertical: 20
+    },
+    container: {
+        flexDirection: 'row', // Alinear elementos en una fila horizontal
+        justifyContent: 'space-between', // Distribuir los elementos con espacio entre ellos
+        paddingHorizontal: 10, // Añadir espacio horizontal entre los íconos y los bordes del contenedor
     },
 });
 
