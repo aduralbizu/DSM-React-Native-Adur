@@ -68,16 +68,9 @@ const MapaComponent = () => {
                     initialRegion={initialRegion}
                 >
                     <Marker
-                        coordinate={origin}
+                        coordinate={currentLocation}
                         title="Tu localización"
                     />
-                    {currentLocation.latitude && currentLocation.longitude && (
-                        <Marker
-                            coordinate={currentLocation}
-                            title="Ubicación Actual"
-                            pinColor="blue"
-                        />
-                    )}
                 </MapView>
             )}
         </View>
