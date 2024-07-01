@@ -14,6 +14,7 @@ import QuienesSomos from './QuienesSomosComponent';
 import { colorGaztaroaClaro, colorGaztaroaOscuro } from '../Comun/comun';
 import { connect } from 'react-redux';
 import { fetchExcursiones, fetchComentarios, fetchCabeceras, fetchActividades } from '../redux/ActionCreators';
+import MapaComponent from './MapaComponent';
 
 const mapStateToProps = state => {
     return {
@@ -157,6 +158,31 @@ function QuienesSomosNavegador({ navigation }) {
         </Stack.Navigator>
     );
 }
+
+function MapaNavegador({ navigation }) {
+    return ( // <Stack.Navigator> actúa como un contenedor para las diferentes pantallas y rutas que deseas gestionar mediante la navegación basada en pilas
+        <Stack.Navigator
+            initialRouteName="mapa"
+            screenOptions={{
+                headerMode: 'screen',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: colorGaztaroaOscuro },
+                headerTitleStyle: { color: '#fff' }
+            }}
+        >
+            <Stack.Screen
+                name="mapa"
+                component={MapaComponent}
+                options={{
+                    title: 'Ubicación',
+                    headerLeft: () => (<Icon name="menu" size={28} color='white' onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())} />)
+                    // React Navigation dispara una acción para alternar la visibilidad del drawer, es decir, si el drawer está cerrado, lo abrirá, y si está abierto, lo cerrará.
+                }}
+            />
+        </Stack.Navigator>
+    );
+}
+
 function CustomDrawerContent(props) {
     return (
         <DrawerContentScrollView {...props}>
@@ -237,6 +263,17 @@ function DrawerNavegador() {
                         />
                     )
                 }} />
+            <Drawer.Screen name="Ubicación" component={MapaNavegador}
+                options={{
+                    drawerIcon: ({ tintColor }) => (
+                        <Icon
+                            name='map'
+                            type='font-awesome'
+                            size={24}
+                            color={tintColor}
+                        />
+                    )
+                }} />
             <Drawer.Screen name="Contacto" component={ContactoNavegador}
                 options={{
                     drawerIcon: ({ tintColor }) => (
@@ -259,7 +296,7 @@ class Campobase extends Component {
         this.props.fetchComentarios();
         this.props.fetchCabeceras();
         this.props.fetchActividades();
-        
+
     }
 
     // El método componentDidMount() es un método del ciclo de vida de los componentes en React que se llama automáticamente después de que un componente se haya montado en el árbol DOM.
