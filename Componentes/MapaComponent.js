@@ -6,14 +6,10 @@ import * as Location from "expo-location";
 
 
 const MapaComponent = () => {
-    const [origin, setOrigin] = useState({
-        latitude: 42.815900,
-        longitude: -1.642216
-    });
 
     const [currentLocation, setCurrentLocation] = useState({
-        latitude: null,
-        longitude: null
+        latitude: 0,
+        longitude: 0
     });
 
     const [initialRegion, setInitialRegion] = useState({
@@ -67,10 +63,11 @@ const MapaComponent = () => {
                     style={styles.map}
                     initialRegion={initialRegion}
                 >
-                    <Marker
+                    {currentLocation.latitude !== 0 && currentLocation.longitude !== 0 && <Marker
                         coordinate={currentLocation}
                         title="Tu localización"
-                    />
+                    />}
+
                 </MapView>
             )}
         </View>
