@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Pressable, Image, ActivityIndicator } from 'react-native';
+import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Pressable, Image, ActivityIndicator, Linking, Platform } from 'react-native';
 import { Card, Icon, Input } from '@rneui/themed';
 import { Button, ListItem, Avatar } from '@rneui/base';
-import { baseUrl, baseUrlFirebase } from '../Comun/comun';
+import { baseUrlFirebase } from '../Comun/comun';
 import { connect } from 'react-redux';
 import { postFavorito, postComentario } from '../redux/ActionCreators';
 import { colorGaztaroaOscuro, colorGaztaroaClaro } from '../Comun/comun';
-import { Rating, AirbnbRating } from 'react-native-ratings';
-import { Camera } from 'expo-camera';
+import { Rating } from 'react-native-ratings';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from './ConfigFirebase';
 import axios from "axios";
 import * as Calendar from 'expo-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { addCalendarEvent } from 'react-native-add-calendar-event';
+// import { presentEventEditingDialog } from 'react-native-add-calendar-event';
 
 const mapStateToProps = state => {
     return {
@@ -34,40 +35,151 @@ function RenderExcursion(props) {
     const excursion = props.excursion;
 
     // GESTION DEL CALENDARIO
+    // const openCalendar = async () => {
+    //     const { status } = await Calendar.requestCalendarPermissionsAsync(); // Solicita permisos para acceder al calendario, espera a promesa
+    //     if (status === 'granted') { // Si se conceden los permisos
+    //         // Aquí puedes abrir el calendario, aunque Expo no tiene un método directo para abrir la aplicación de calendario.
+    //         // Puedes crear un evento en el calendario del dispositivo.
+
+    //         // Obtiene los calendarios del dispositivo
+    //         const calendars = await Calendar.getCalendarsAsync();
+    //         console.log('Calendars:', calendars);
+
+    //         // Crea los detalles del evento
+    //         // '2024-07-01T10:00:00'
+    //         const eventDetails = {
+    //             title: excursion.nombre, // Título del evento
+    //             startDate: new Date(excursion.fechaInicio),
+    //             endDate: new Date(excursion.fechaFin), // Fecha de finalización del evento, también se establece en la fecha y hora actual
+    //             timeZone: 'GMT', // Zona horaria del evento, en este caso se establece en GMT
+    //             location: excursion.nombre // Ubicación del evento, en este caso se establece como 'Excursion Location'
+    //         };
+
+    //         // Busca el calendario por defecto (primario) o utiliza el primer calendario encontrado
+    //         // En calendario Xiaomi, no el de google
+    //         const defaultCalendar = calendars.find(calendar => calendar.isPrimary) || calendars[0];
+
+    //         if (defaultCalendar) {
+    //             // Crea un nuevo evento en el calendario seleccionado
+    //             const newEventId = await Calendar.createEventAsync(defaultCalendar.id, eventDetails);
+    //             Alert.alert('Evento creado', `Evento creado con ID: ${newEventId}`);
+    //         }
+    //     } else {
+    //         Alert.alert('Permiso denegado', 'No se pudo obtener acceso al calendario');
+    //     }
+    // };
+
+    // ESTA NO FUNCIONA
+    // const openCalendar = async () => {
+    //     const startDate = new Date(excursion.fechaInicio).toISOString();
+    //     const endDate = new Date(excursion.fechaFin).toISOString();
+
+    //     const eventUrl = `intent://details#Intent;action=com.android.calendar.EVENT;S.title=${excursion.nombre};S.description=${excursion.descripcion};S.location=${excursion.nombre};S.beginTime=${Date.parse(startDate)};S.endTime=${Date.parse(endDate)};end`;
+
+    //     Linking.openURL(eventUrl);
+    // };
+
     const openCalendar = async () => {
-        const { status } = await Calendar.requestCalendarPermissionsAsync(); // Solicita permisos para acceder al calendario, espera a promesa
-        if (status === 'granted') { // Si se conceden los permisos
-            // Aquí puedes abrir el calendario, aunque Expo no tiene un método directo para abrir la aplicación de calendario.
-            // Puedes crear un evento en el calendario del dispositivo.
+        const startDate = new Date(excursion.fechaInicio).toISOString();
+        const endDate = new Date(excursion.fechaFin).toISOString();
 
-            // Obtiene los calendarios del dispositivo
-            const calendars = await Calendar.getCalendarsAsync();
-            console.log('Calendars:', calendars);
-
-            // Crea los detalles del evento
-            // '2024-07-01T10:00:00'
-            const eventDetails = {
-                title: excursion.nombre, // Título del evento
-                startDate: new Date(excursion.fechaInicio),
-                endDate: new Date(excursion.fechaFin), // Fecha de finalización del evento, también se establece en la fecha y hora actual
-                timeZone: 'GMT', // Zona horaria del evento, en este caso se establece en GMT
-                location: excursion.nombre // Ubicación del evento, en este caso se establece como 'Excursion Location'
-            };
-
-            // Busca el calendario por defecto (primario) o utiliza el primer calendario encontrado
-            // En calendario Xiaomi, no el de google
-            const defaultCalendar = calendars.find(calendar => calendar.isPrimary) || calendars[0];
-
-            if (defaultCalendar) {
-                // Crea un nuevo evento en el calendario seleccionado
-                const newEventId = await Calendar.createEventAsync(defaultCalendar.id, eventDetails);
-                Alert.alert('Evento creado', `Evento creado con ID: ${newEventId}`);
+        if (Platform.OS === 'ios') {
+            const eventUrl = `calshow:${Date.parse(startDate) / 1000}`;
+            try {
+                const supported = await Linking.canOpenURL(eventUrl);
+                if (supported) {
+                    Linking.openURL(eventUrl);
+                } else {
+                    Alert.alert('No se puede abrir el calendario en este dispositivo.');
+                }
+            } catch (error) {
+                Alert.alert('Error al abrir el calendario', error.message);
             }
-        } else {
-            Alert.alert('Permiso denegado', 'No se pudo obtener acceso al calendario');
+        } else if (Platform.OS === 'android') {
+
+            // si pongo fechafinal entra en notas
+            const eventUrl = `content://com.android.calendar/time/${Date.parse(startDate)}/`;
+            try {
+                const supported = await Linking.canOpenURL(eventUrl);
+                if (supported) {
+                    Linking.openURL(eventUrl);
+                } else {
+                    Alert.alert('No se puede abrir el calendario en este dispositivo.');
+                }
+            } catch (error) {
+                Alert.alert('Error al abrir el calendario', error.message);
+            }
         }
     };
-    //
+
+    // const openCalendar = async () => {
+    //     const startDate = new Date(excursion.fechaInicio).toISOString();
+    //     const endDate = new Date(excursion.fechaFin).toISOString();
+
+    //     if (Platform.OS === 'ios') {
+    //         const eventUrl = `calshow:${Date.parse(startDate) / 1000}`;
+    //         try {
+    //             const supported = await Linking.canOpenURL(eventUrl);
+    //             if (supported) {
+    //                 Linking.openURL(eventUrl);
+    //             } else {
+    //                 Alert.alert('No se puede abrir el calendario en este dispositivo.');
+    //             }
+    //         } catch (error) {
+    //             Alert.alert('Error al abrir el calendario', error.message);
+    //         }
+    //     } else if (Platform.OS === 'android') {
+
+    //         const eventData = {
+    //             title: 'Reunión de trabajo',
+    //             description: 'Reunión importante para revisar el proyecto.',
+    //             location: 'Oficina principal',
+    //             startDate: new Date('2024-07-01T09:00:00').toISOString(), // Convertir a ISOString para Android
+    //             endDate: new Date('2024-07-01T10:00:00').toISOString()
+    //         };
+
+    //         const eventUrl = `content://com.android.calendar/events/new?title=${encodeURIComponent(eventData.title)}&description=${encodeURIComponent(eventData.description)}&eventLocation=${encodeURIComponent(eventData.location)}&beginTime=${encodeURIComponent(eventData.startDate)}&endTime=${encodeURIComponent(eventData.endDate)}`;            
+    //         try {
+    //             const supported = await Linking.canOpenURL(eventUrl);
+    //             if (supported) {
+    //                 Linking.openURL(eventUrl);
+    //             } else {
+    //                 Alert.alert('No se puede abrir el calendario en este dispositivo.');
+    //             }
+    //         } catch (error) {
+    //             Alert.alert('Error al abrir el calendario', error.message);
+    //         }
+    //     }
+    // };
+
+
+    //     ESTA NO FUNCIONA, puede ser por paq instalado
+    //const openCalendar = () => {
+    //         const startDate = new Date(excursion.fechaInicio).toISOString();
+    //         const endDate = new Date(excursion.fechaFin).toISOString();
+
+    //         const eventConfig = {
+    //             title: excursion.nombre,
+    //             startDate,
+    //             endDate,
+    //             notes: excursion.descripcion,
+    //             location: excursion.ubicacion,
+    //             allDay: false,
+    //         };
+
+    //         presentEventEditingDialog(eventConfig)
+    //         .then(eventInfo => {
+    //             if (eventInfo) {
+    //                 Alert.alert('Evento añadido al calendario', `ID: ${eventInfo.calendarItemIdentifier}`);
+    //             } else {
+    //                 Alert.alert('El evento no se pudo añadir al calendario');
+    //             }
+    //         })
+    //         .catch(error => {
+    //             Alert.alert('Error al añadir evento al calendario', error.message);
+    //         });
+    // };
+
 
     if (excursion != null) {
         return (
@@ -211,7 +323,7 @@ class DetalleExcursion extends Component {
             showLoadingModal: false,
             loading: false
         }
-        
+
     }
 
     async componentDidMount() { // se podria mirar de inicializarlo en App para mejor rendimiento
@@ -267,7 +379,7 @@ class DetalleExcursion extends Component {
     }
 
     guardarComentario(resena) {
-        
+
         this.props.postComentario(resena.excursionId, resena.valoracion, resena.autor, resena.comentario, resena.imagen); // en ActionReducers recibe 4 params, a traves de Maps...
 
         // axios de forma asincronica por defecto, resuelve promesas
