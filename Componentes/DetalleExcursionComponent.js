@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Pressable, Image, ActivityIndicator, Linking, Platform } from 'react-native';
+import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Image, ActivityIndicator, Linking, Platform } from 'react-native';
 import { Card, Icon, Input } from '@rneui/themed';
 import { Button, ListItem, Avatar } from '@rneui/base';
 import { baseUrlFirebase } from '../Comun/comun';
@@ -419,7 +419,7 @@ class DetalleExcursion extends Component {
                 if (!result.cancelled) {
                     console.log(result);
                     this.setState({ imagen: result.assets[0].uri }); //guardo la uri en el estado
-                }
+                } 
             }).catch(error => {
                 Alert.alert('Aviso', 'Cerró la cámara');
             })
