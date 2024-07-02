@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Image, ActivityIndicator, Linking, Platform } from 'react-native';
+import React, { Component, useState } from 'react';
+import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Card, Icon, Input } from '@rneui/themed';
 import { Button, ListItem, Avatar } from '@rneui/base';
 import { baseUrlFirebase } from '../Comun/comun';
@@ -152,28 +152,44 @@ function RenderExcursion(props) {
     }
 }
 
+
+
 function RenderComentario(props) {
+
 
     const comentarios = props.comentarios;
 
     const renderComentarioItem = ({ item, index }) => {
 
+        const handleonPress = () => {
+            props.toggleModal2();
+            props.selectImage(item.imagen);
+        }
+
         return (
-            <ListItem
-                key={index}
-                bottomDivider>
+            <>
+                <ListItem
+                    key={index}
+                    bottomDivider>
 
-                <ListItem.Content>
-                    <ListItem.Title>{item.comentario}</ListItem.Title>
-                    <ListItem.Subtitle>{item.valoracion}</ListItem.Subtitle>
-                    <ListItem.Subtitle>-- {item.autor}, {item.dia}</ListItem.Subtitle>
-                </ListItem.Content>
-                {item.imagen && <Avatar
-                    source={{ uri: item.imagen }} // Replace 'item.imagen' with your image URI
-                    size="medium" // Adjust size as needed
-                />}
+                    <ListItem.Content>
+                        <ListItem.Title>{item.comentario}</ListItem.Title>
+                        <ListItem.Subtitle>{generarEstrellas(item.valoracion)}</ListItem.Subtitle>
+                        <ListItem.Subtitle>{item.autor}, {formatDate(item.dia)}</ListItem.Subtitle>
+                    </ListItem.Content>
+                    {item.imagen && (
+                        <TouchableOpacity onPress={() => { handleonPress(item.imagen) }}>
+                            <Avatar
+                                source={{ uri: item.imagen }}
+                                size="medium"
+                            />
+                        </TouchableOpacity>
+                    )}
 
-            </ListItem>
+                </ListItem>
+
+
+            </>
         );
     };
 
@@ -189,6 +205,7 @@ function RenderComentario(props) {
         </Card>
     )
 }
+
 
 // keyExtractor es una función utilizada en React Native (y en React en general) para proporcionar una clave única para cada elemento de una lista cuando se está utilizando un componente de lista, como FlatList o SectionList.
 
@@ -241,6 +258,8 @@ class DetalleExcursion extends Component {
             autor: '',
             comentario: '',
             showModal: false,
+            showModal2: false,
+            selectedImage: null,
             hasCameraPermission: null,
             camera: null,
             imagen: null,
@@ -260,6 +279,14 @@ class DetalleExcursion extends Component {
 
     toggleModal() {
         this.setState({ showModal: !this.state.showModal });
+    }
+
+    toggleModal2 = () => {
+        this.setState({ showModal2: !this.state.showModal2 });
+    }
+
+    selectImage = (image) => {
+        this.setState({ selectedImage: image });
     }
 
     gestionarComentario = async (excursionId) => {
@@ -343,7 +370,7 @@ class DetalleExcursion extends Component {
                 if (!result.cancelled) {
                     console.log(result);
                     this.setState({ imagen: result.assets[0].uri }); //guardo la uri en el estado
-                } 
+                }
             }).catch(error => {
                 Alert.alert('Aviso', 'Cerró la cámara');
             })
@@ -394,7 +421,7 @@ class DetalleExcursion extends Component {
                 {console.log(this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId))}
                 {console.log("fin comentarios filter")} */}
 
-                <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+                <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} toggleModal2={this.toggleModal2} selectImage={this.selectImage}/>
 
                 <Modal
                     animationType="slide"
@@ -473,10 +500,60 @@ class DetalleExcursion extends Component {
                         </View>
                     </View>
                 </Modal>
+
+                {/* Modal de imagen: */}
+
+                <Modal
+                    animationType="slide"
+                    transparent={false}
+                    visible={this.state.showModal2}
+                    onRequestClose={() => this.toggleModal2()}
+                >
+                    <View style={styles.fullScreenContainer}>
+                        <TouchableOpacity style={styles.closeButton} onPress={() => this.toggleModal2()}>
+                            <Text style={styles.closeButtonText}>Cerrar</Text>
+                        </TouchableOpacity>
+                        {this.state.selectedImage && (
+                            <Image source={{ uri: this.state.selectedImage }} style={styles.fullScreenImage} />
+                        )}
+                    </View>
+                </Modal>
+
+
             </ScrollView>
         );
     }
 }
+
+//Función para las estrellas:
+
+const generarEstrellas = (valoracion) => {
+
+    switch (valoracion) {
+        case 1:
+            return (<>★</>);
+        case 2:
+            return (<>★★</>);
+        case 3:
+            return (<>★★★</>);
+        case 4:
+            return (<>★★★★</>);
+        case 5:
+            return (<>★★★★★</>);
+        default:
+            break;
+    }
+}
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses en JavaScript son 0-indexed
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
 
 // La expresión this.state.comentarios.filter() se utiliza en React para filtrar elementos de una matriz (array) de comentarios que se almacenan en el estado de un componente de clase
 // ScrollView es un componente proporcionado por React Native que permite desplazar contenido que es más grande que la pantalla
@@ -524,6 +601,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row', // Alinear elementos en una fila horizontal
         justifyContent: 'space-between', // Distribuir los elementos con espacio entre ellos
         paddingHorizontal: 10, // Añadir espacio horizontal entre los íconos y los bordes del contenedor
+    },
+    fullScreenContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#000', // Fondo negro para el modal
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+    },
+    closeButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#fff', // Texto blanco para el botón de cerrar
+    },
+    fullScreenImage: {
+        width: '100%',
+        height: '85%',
+        resizeMode: 'contain', // Ajusta la imagen al tamaño del modal
     },
 });
 
