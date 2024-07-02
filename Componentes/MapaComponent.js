@@ -7,22 +7,24 @@ import * as Location from "expo-location";
 
 const MapaComponent = () => {
 
+    // ubicacion actual usuario
     const [currentLocation, setCurrentLocation] = useState({
         latitude: 0,
         longitude: 0
     });
 
-    const [initialRegion, setInitialRegion] = useState({
+    // region inicial del mapa Region
+    const [Region, setRegion] = useState({
         latitude: 42.815900,
         longitude: -1.642216,
         latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
+        longitudeDelta: 0.005
     });
 
-    const [permissionDenied, setPermissionDenied] = useState(false);
+    const [permissionDenied, setPermissionDenied] = useState(false); // denegado por usuario
 
     useEffect(() => {
-        const getLocation = async () => {
+        const getLocation = async () => { // solicito permisos de ubi
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 setPermissionDenied(true);
@@ -35,21 +37,27 @@ const MapaComponent = () => {
             }
 
             setPermissionDenied(false);
-
+            // si permiso
             let location = await Location.getCurrentPositionAsync({});
-            setCurrentLocation(location.coords);
+            setCurrentLocation(location.coords); // actualizo ubi user
 
-            setInitialRegion({
+            setRegion({ // actualizo region inicial del mapa
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
+                latitudeDelta: 0.005, // menores valores mayor zoom 
+                longitudeDelta: 0.005
+                
             });
+            console.log("he entrado");
+            console.log(location.coords.latitude);
+            console.log(location.coords.longitude);
+
         };
 
         getLocation();
     }, []);
 
+        // mapview o permiso denegado
     return (
         <View style={styles.container}>
             {permissionDenied ? (
@@ -59,9 +67,10 @@ const MapaComponent = () => {
                     </Text>
                 </View>
             ) : (
+                // mapview muestra mapa con region inicial 
                 <MapView
                     style={styles.map}
-                    initialRegion={initialRegion}
+                    region={Region} // initialRegion={initialRegion}, con region se actualiza
                 >
                     {currentLocation.latitude !== 0 && currentLocation.longitude !== 0 && <Marker
                         coordinate={currentLocation}
@@ -83,5 +92,5 @@ const styles = StyleSheet.create({
         height: '100%'
     }
 });
-
+// pantalla completa
 export default MapaComponent;
