@@ -3,7 +3,6 @@ import { excursiones } from './excursiones';
 import { comentarios } from './comentarios';
 import { cabeceras } from './cabeceras';
 import { actividades } from './actividades';
-import thunk from 'redux-thunk';
 import { favoritos } from './favoritos';
 
 

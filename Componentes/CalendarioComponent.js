@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { ListItem, Avatar } from '@rneui/themed';
 import { SafeAreaView, FlatList, View, Text} from 'react-native';
-import { baseUrl } from '../Comun/comun';
 import { connect } from 'react-redux';
 import { IndicadorActividad } from './IndicadorActividadComponent';
 

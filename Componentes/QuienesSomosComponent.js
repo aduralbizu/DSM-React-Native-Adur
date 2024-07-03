@@ -3,7 +3,6 @@ import { Text, ScrollView, View } from 'react-native';
 import { HISTORIA } from "../Comun/historia";
 import { Component } from "react";
 import { FlatList } from "react-native-gesture-handler";
-import { baseUrl } from "../Comun/comun";
 import { connect } from "react-redux";
 import { IndicadorActividad } from "./IndicadorActividadComponent";
 

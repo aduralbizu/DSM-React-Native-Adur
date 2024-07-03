@@ -7,6 +7,9 @@ export const favoritos = (state = { favoritos: [] }, action) => {
             if (state.favoritos.includes(action.payload)) return state
             else return {...state,  favoritos: [...state.favoritos, action.payload]};
 
+       case ActionTypes.REMOVE_FAVORITO:
+          return {...state, favoritos: state.favoritos.filter(fav => fav !== action.payload)}; //muy importante mantener esta estructura
+
         default:
             return state;
     }

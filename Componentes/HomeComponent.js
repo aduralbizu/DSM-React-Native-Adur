@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Text, ScrollView, View } from 'react-native';
 import { Card } from '@rneui/themed';
 import { StyleSheet } from 'react-native';
-import { baseUrl } from '../Comun/comun';
 import { connect } from 'react-redux';
 import { IndicadorActividad } from './IndicadorActividadComponent';
 

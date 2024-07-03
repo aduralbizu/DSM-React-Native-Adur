@@ -1,10 +1,10 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList, Alert, Modal, StyleSheet, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Card, Icon, Input } from '@rneui/themed';
 import { Button, ListItem, Avatar } from '@rneui/base';
 import { baseUrlFirebase } from '../Comun/comun';
 import { connect } from 'react-redux';
-import { postFavorito, postComentario } from '../redux/ActionCreators';
+import { postFavorito, postComentario, removeFavorito } from '../redux/ActionCreators';
 import { colorGaztaroaOscuro, colorGaztaroaClaro } from '../Comun/comun';
 import { Rating } from 'react-native-ratings';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,8 +13,8 @@ import { storage } from './ConfigFirebase';
 import axios from "axios";
 import * as Calendar from 'expo-calendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { addCalendarEvent } from 'react-native-add-calendar-event';
-// import { presentEventEditingDialog } from 'react-native-add-calendar-event';
+
+import Toast from 'react-native-toast-message';
 
 const mapStateToProps = state => {
     return {
@@ -27,6 +27,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     postFavorito: (excursionId) => dispatch(postFavorito(excursionId)),
+    removeFavorito: (excursionId) => dispatch(removeFavorito(excursionId)),
     postComentario: (excursionId, valoracion, autor, comentario, imagen) => dispatch(postComentario(excursionId, valoracion, autor, comentario, imagen))
 })
 
@@ -62,48 +63,30 @@ function RenderExcursion(props) {
             if (defaultCalendar) {
                 // Crea un nuevo evento en el calendario seleccionado
                 const newEventId = await Calendar.createEventAsync(defaultCalendar.id, eventDetails);
-                // Alert.alert('Evento creado', `Evento creado con ID: ${newEventId}`);
-                Alert.alert('Se ha creado evento en el calendario para la excursión a fecha prevista');
+                // Alert.alert('Se ha creado evento en el calendario para la excursión a fecha prevista.');
+                Toast.show({
+                    type: 'success',
+                    text1: 'Evento creado',
+                    text2: 'Se ha creado un evento en el calendario a la fecha prevista.',
+                    position: 'top', 
+                    visibilityTime: 4000,
+                    autoHide: true,
+                    topOffset: 40
+                });
             }
         } else {
-            Alert.alert('Permiso denegado', 'No se pudo obtener acceso al calendario');
+            //Alert.alert('Permiso denegado', 'No se pudo obtener acceso al calendario');
+            Toast.show({
+                type: 'error',
+                text1: 'Permiso denegado',
+                text2: 'No se pudo obtener acceso al calendario',
+                position: 'top', 
+                visibilityTime: 4000,
+                autoHide: true,
+                topOffset: 40
+            });
         }
     };
-
-
-    // const openCalendar = async () => {
-    //     const startDate = new Date(excursion.fechaInicio).toISOString();
-    //     const endDate = new Date(excursion.fechaFin).toISOString();
-
-    //     if (Platform.OS === 'ios') {
-    //         const eventUrl = `calshow:${Date.parse(startDate) / 1000}`;
-    //         try {
-    //             const supported = await Linking.canOpenURL(eventUrl);
-    //             if (supported) {
-    //                 Linking.openURL(eventUrl);
-    //             } else {
-    //                 Alert.alert('No se puede abrir el calendario en este dispositivo.');
-    //             }
-    //         } catch (error) {
-    //             Alert.alert('Error al abrir el calendario', error.message);
-    //         }
-    //     } else if (Platform.OS === 'android') {
-
-    //         // si pongo fechafinal entra en notas
-    //         const eventUrl = `content://com.android.calendar/time/${Date.parse(startDate)}/`;
-    //         try {
-    //             const supported = await Linking.canOpenURL(eventUrl);
-    //             if (supported) {
-    //                 Linking.openURL(eventUrl);
-    //             } else {
-    //                 Alert.alert('No se puede abrir el calendario en este dispositivo.');
-    //             }
-    //         } catch (error) {
-    //             Alert.alert('Error al abrir el calendario', error.message);
-    //         }
-    //     }
-    // };
-
 
     if (excursion != null) {
         return (
@@ -123,7 +106,8 @@ function RenderExcursion(props) {
                         name={props.favorita ? 'heart' : 'heart-o'} //Si props.favorita es verdadero, se muestra corazón lleno. Si no, corazón vacío
                         type='font-awesome' //  Este prop indica que el tipo de icono es de la familia 'Font Awesome'. Esto significa que el icono se obtiene de la biblioteca de iconos Font Awesome.
                         color='#f50' // Este prop establece el color del icono en color naranja (#f50)
-                        onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} //Si al pulsar props.favorita es cierto, hacemos console.log() avisando de que ya es favorito. En caso contrario, ejecutamos funcion props.Onpress pasada como propiedad
+                        onPress={() => props.favorita ? props.onRemoveFavorite() : props.onPress()} // alterno entre marcar y desmarcar favorito
+                    // onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} //Si al pulsar props.favorita es cierto, hacemos console.log() avisando de que ya es favorito. En caso contrario, ejecutamos funcion props.Onpress pasada como propiedad
                     />
                     <Icon
                         raised //Adds box shadow to button
@@ -232,11 +216,22 @@ const storeFavorite = async (favoriteId) => {
     }
 };
 
+const removeFavorite = async (favoriteId) => {
+    try {
+        let favorites = await AsyncStorage.getItem('favorites');
+        if (favorites) {
+            favorites = JSON.parse(favorites);
+            favorites = favorites.filter(id => id !== favoriteId);
+            await AsyncStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+    } catch (error) {
+        console.error("Error removing favorite", error);
+    }
+};
+
 const loadFavorites = async () => {
     try {
         let favorites = await AsyncStorage.getItem('favorites');
-        console.log('desde getItem'); // [0,2]
-        console.log(favorites);
         if (favorites) {
             return JSON.parse(favorites);
         } else {
@@ -271,7 +266,6 @@ class DetalleExcursion extends Component {
 
     async componentDidMount() { // se podria mirar de inicializarlo en App para mejor rendimiento
         const favorites = await loadFavorites();
-        // console.log(favorites);
         favorites.forEach(fav => {
             this.props.postFavorito(fav); // fav indice de excursion, 0,1,2,...
         });
@@ -412,16 +406,14 @@ class DetalleExcursion extends Component {
                     onPress={() => this.marcarFavorito(excursionId)}
                     toggleModal={() => { this.toggleModal() }}
                     showModal={this.state.showModal}
+
+                    onRemoveFavorite={() => { this.props.removeFavorito(excursionId); removeFavorite(excursionId); }}
                 />
-                {/* {console.log("inicio comentarios")}
-                {console.log(this.props.comentarios.comentarios)}
-                {console.log("fin comentarios")}
 
-                {console.log("inicio comentarios filter")}
-                {console.log(this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId))}
-                {console.log("fin comentarios filter")} */}
+                <RenderComentario
+                    comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)}
+                    toggleModal2={this.toggleModal2} selectImage={this.selectImage} />
 
-                <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} toggleModal2={this.toggleModal2} selectImage={this.selectImage}/>
 
                 <Modal
                     animationType="slide"
@@ -518,6 +510,7 @@ class DetalleExcursion extends Component {
                         )}
                     </View>
                 </Modal>
+
 
 
             </ScrollView>

@@ -5,8 +5,8 @@ import Campobase from './Componentes/CampoBaseComponent';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { ConfigureStore } from './redux/configureStore';
-
-const store = ConfigureStore(); //crel el store
+import Toast from 'react-native-toast-message';
+const store = ConfigureStore(); //crea el store
 
 export default function App() {
   return (
@@ -15,6 +15,7 @@ export default function App() {
         <View style={styles.container}>
           <Campobase />
           <StatusBar style="auto" />
+          <Toast />
         </View>
       </SafeAreaProvider>
     </Provider>

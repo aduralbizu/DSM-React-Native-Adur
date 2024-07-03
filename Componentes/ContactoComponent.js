@@ -5,8 +5,6 @@ import { CONTACTO } from '../Comun/contacto';
 
 import * as MailComposer from "expo-mail-composer";
 
-
-
 class ContactoComponent extends Component {
 
     constructor(props) {
@@ -16,19 +14,26 @@ class ContactoComponent extends Component {
         };
     }
 
+    // handleEmailPress = () => {
+    //     MailComposer.composeAsync({
+    //         recipients: ["gaztaroa@gaztaroa.com"],
+    //         subject: 'Info Gaztaroa',
+    //         body: 'Escribe aquí cualquier duda...'
+    //     }).then(result => {
+    //         if (result.status === 'sent') { // no parece seguir logica correcta
+    //             console.log('Email enviado');
+    //         } else {
+    //             console.log('Se canceló el envío');
+    //         }
+    //     }).catch(error => console.log('Error al enviar el correo', error));
+    // };
+
     handleEmailPress = () => {
-        // const { email } = this.state.contacto;
         MailComposer.composeAsync({
             recipients: ["gaztaroa@gaztaroa.com"],
             subject: 'Info Gaztaroa',
             body: 'Escribe aquí cualquier duda...'
-        }).then(result => {
-            if (result.status === 'sent') {
-                console.log('Email enviado');
-            } else {
-                console.log('Se canceló el envío');
-            }
-        }).catch(error => console.log('Error al enviar el correo', error));
+        });
     };
 
     handlePhonePress = () => {

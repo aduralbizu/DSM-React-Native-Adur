@@ -14,6 +14,8 @@ export const ADD_FAVORITO = 'ADD_FAVORITO';
 export const POST_COMENTARIO = 'POST_COMENTARIO';
 export const ADD_COMENTARIO = 'ADD_COMENTARIO';
 
+export const REMOVE_FAVORITO = 'REMOVE_FAVORITO';
+
 // En el fichero ActionTypes.js se definirán todos los tipos de acciones asociados a nuestro repositorio Redux
 
 // En una aplicación típica que utiliza Redux, puede haber momentos en los que sea necesario mostrar algún tipo de indicador de carga para informar al usuario que la aplicación está trabajando en obtener datos.

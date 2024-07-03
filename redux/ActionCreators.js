@@ -1,5 +1,5 @@
 import * as ActionTypes from './ActionTypes';
-import { baseUrl, baseUrlFirebase } from '../Comun/comun';
+import { baseUrlFirebase } from '../Comun/comun';
 
 // Finalmente, en el fichero ActionCreators.js implementaremos las funciones (Thunk) y las
 // acciones que darán respuesta a los requerimientos de nuestra aplicación. Por ahora, lo 
@@ -234,4 +234,10 @@ export const addComentario = (excursionId, valoracion, autor, comentario, dia, i
         dia: dia,
         imagen: imagen
     }
+});
+
+
+export const removeFavorito = (excursionId) => ({
+    type: ActionTypes.REMOVE_FAVORITO,
+    payload: excursionId
 });

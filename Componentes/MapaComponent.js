@@ -4,7 +4,6 @@ import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import * as Location from "expo-location";
 
-
 const MapaComponent = () => {
 
     // ubicacion actual usuario
@@ -67,7 +66,6 @@ const MapaComponent = () => {
                     </Text>
                 </View>
             ) : (
-                // mapview muestra mapa con region inicial 
                 <MapView
                     style={styles.map}
                     region={Region} // initialRegion={initialRegion}, con region se actualiza
